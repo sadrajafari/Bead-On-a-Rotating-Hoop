@@ -18,3 +18,4 @@ other important information.
 
 See the <a href="https://github.com/phetsims/bead-on-hoop/blob/main/LICENSE" target="_blank">LICENSE</a>
 # Final-Bead-On-Hoop
+# Final-Bead-On-Hoop
