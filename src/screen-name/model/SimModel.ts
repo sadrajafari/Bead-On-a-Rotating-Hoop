@@ -53,6 +53,7 @@ export class SimModel {
   public name: string | undefined | null;
 
   public storeVel: number;
+  private updateOmega = false
 
 
 
@@ -94,8 +95,21 @@ export class SimModel {
 
     // this.graphLen = new Property(Number(this.paramList["graphlen"].val))
 
-    this.omegaProp.link(((val) => { this.omegaRadsProp.value = val * Math.PI / 180 }))
-    this.omegaRadsProp.link(((val) => { this.omegaProp.value = val / Math.PI * 180 }))
+    this.omegaProp.link(((val) => {
+      if (!this.updateOmega) {
+        this.updateOmega = true;
+        this.omegaRadsProp.value = val * Math.PI / 180
+        this.updateOmega = false;
+      }
+    }))
+    this.omegaRadsProp.link(((val) => {
+      if (!this.updateOmega) {
+        this.updateOmega = true;
+        this.omegaProp.value = val / Math.PI * 180
+        this.updateOmega = false;
+      }
+      // this.omegaProp.value = val / Math.PI * 180
+    }))
     this.graphUpdateInterval = .001;
 
     this.angle = this.thetaProp.value;

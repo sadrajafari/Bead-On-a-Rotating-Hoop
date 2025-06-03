@@ -1,18 +1,18 @@
-import { Node } from 'scenerystack';
+import { Node, Emitter, DOM, KeyboardUtils } from 'scenerystack';
 import post from '../../common/postData.js';
 
 
 export default class EquationInput extends Node {
-  constructor( screenNode,parentDomElement, options ) {
+  constructor(screenNode, parentDomElement, options) {
 
-    options = Object.assign( {
+    options = Object.assign({
 
       // can limit contents of the input
       inputType: 'text', // 'text' | 'number'
 
       domElement: null,
-      thetaElement:null,
-      velocityElement:null,
+      thetaElement: null,
+      velocityElement: null,
 
       onlyLetters: false,
 
@@ -23,41 +23,41 @@ export default class EquationInput extends Node {
       initialText: '',
 
       equation: null,
-      
+
       verifyEq: null,
-      dom:null,
+      dom: null,
       // errField: null,
 
       linkObj: null,
 
       focusedEq: null
 
-    }, options );
+    }, options);
 
-    super( options );
+    super(options);
 
-    this.valueSubmittedEmitter = new phet.axon.Emitter();
-    this.writeToEquation = function(text){
+    this.valueSubmittedEmitter = new Emitter();
+    this.writeToEquation = function (text) {
       this.mathField.write(text)
-      
+
 
     }
-    const domElement = parentDomElement; 
+    const domElement = parentDomElement;
     this.domElement = options.dom;
     const mathField = window.MathQuill.getInterface(2).MathField(domElement, {
-    
-    // const mathField = MathQuill.getInterface(2).MathField(domElement, {
+
+      // const mathField = MathQuill.getInterface(2).MathField(domElement, {
       handlers: {
-        edit: function() {
+        edit: function () {
           // console.log("balkjsdflajsdbfaklsjdf")
-          options.model[options.equation] = mathField.latex().replaceAll('\\theta',' t').replaceAll('\\omega',' o').replaceAll('\\pi',' p').replaceAll('\\e',' e')
+          options.model[options.equation] = mathField.latex().replaceAll('\\theta', ' t').replaceAll('\\omega', ' o').replaceAll('\\pi', ' p').replaceAll('\\e', ' e')
           // console.log(mathField.latex())
-          options.model.validEqs = options.verifyEq(options.thetaElement,options.velocityElement, options.model);
+          options.model.validEqs = options.verifyEq(options.thetaElement, options.velocityElement, options.model);
           //post here
           setTimeout(() => post(options.model.name, "changed " + options.equation, options.model.radiusProp.value, options.model.gravityProp.value, options.model.frictionProp.value, options.model.omegaProp.value, options.model.thetaProp.value, options.model.storeVel, options.model.velocityEQ, options.model.thetaEQ, options.model.id), 10)
 
         },
-        
+
 
       }
     });
@@ -68,31 +68,40 @@ export default class EquationInput extends Node {
 
     const equationInputNode = new Node();
     this.equationInputNode = domElement;
-    const domElementDOM = new phet.scenery.DOM( domElement, { allowInput: true } ) ;
-    equationInputNode.addChild( domElementDOM);
+    const domElementDOM = new DOM(domElement, { allowInput: true });
+    equationInputNode.addChild(domElementDOM);
     this.addChild(equationInputNode);
-    
 
-    domElement.addEventListener( 'keyup', event => {
-      if ( event.code === phet.scenery.KeyboardUtils.KEY_ENTER ) {
 
-        this.valueSubmittedEmitter.emit( mathField.latex() ); 
+
+    window.addEventListener('pointerdown', (event) => {
+      mathField.blur();
+      // window.itemSelected = event.target;
+      // if (event.target.id !== domElement.id) {
+      //   this.disable()
+      // }
+
+    })
+    domElement.addEventListener('keyup', event => {
+      if (event.code === KeyboardUtils.KEY_ENTER) {
+
+        this.valueSubmittedEmitter.emit(mathField.latex());
 
         mathField.blur();
       }
-    } );
-  
+    });
+
 
 
     this.domElement = domElement;
   }
-  
+
 
   getElementValue() {
     return this.mathField.latex()
   }
 
-  
+
 }
 
 

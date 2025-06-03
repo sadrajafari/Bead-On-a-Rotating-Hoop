@@ -1,8 +1,8 @@
 import { ScreenView, ScreenViewOptions } from "scenerystack/sim";
 import { SimModel } from "../model/SimModel.js";
 import { ResetAllButton } from "scenerystack/scenery-phet";
-import { Rectangle, Color, HBox, RichText, VBox } from "scenerystack/scenery";
-import { HSlider, Range, Panel, RectangularToggleButton, Property, DerivedProperty, RoundToggleButton } from "scenerystack";
+import { Rectangle, Color, HBox, RichText, VBox, Text } from "scenerystack/scenery";
+import { HSlider, Range, Panel, RectangularToggleButton, Property, DerivedProperty, RoundToggleButton, Vector2, Node, Display, DOM } from "scenerystack";
 import ThreeIsometricNode from '../../../../mobius/js/ThreeIsometricNode.ts';
 import { drawTheta, drawVelocity } from '../../common/makeGraphs.js';
 import { verifyEq } from '../../common/verifyEq.js';
@@ -174,8 +174,8 @@ export class SimScreenView extends ScreenView {
       this.model.velocityProp.value = 0.6;
       reset("reset to initials")
     })
-    const resteInitials = new RichText("Reset to initials")
-    const resetInitialsButton = new RectangularToggleButton(resetInitials, false, true, { minWidth: 140, maxHeight: 25, content: resteInitials, baseColor: "#41b3d5" })
+    const resteInitials = new Text("Reset to initials", { fontSize: 15 })
+    const resetInitialsButton = new RectangularToggleButton(resetInitials, false, true, { minWidth: 140, maxHeight: 20, content: resteInitials, baseColor: "#41b3d5" })
     this.addChild(resetInitialsButton)
 
 
@@ -228,17 +228,17 @@ export class SimScreenView extends ScreenView {
     const testVelocityGraph = document.createElement('div');
     document.body.appendChild(testVelocityGraph);
 
-    this.rootNode = new phet.scenery.Node();
+    this.rootNode = new Node();
 
-    const plotDis = new phet.scenery.Display(this.rootNode);
+    const plotDis = new Display(this.rootNode);
 
 
     plotDis.updateOnRequestAnimationFrame();
     plotDis.resizeOnWindowResize()
 
 
-    const rootNode = new phet.scenery.Node();
-    const display = new phet.scenery.Display(rootNode);
+    const rootNode = new Node();
+    const display = new Display(rootNode);
 
     document.body.appendChild(display.domElement);
     display.updateOnRequestAnimationFrame();
@@ -252,61 +252,65 @@ export class SimScreenView extends ScreenView {
 
 
     refVelocityGraph.id = 'staticSim-velocity';
-    this.refVelocityGraph = drawVelocity(model.graphData, model.graphLen, 'staticSim-velocity', 'reference', this.graphSize);
+    this.refVelocityGraph = drawVelocity(model.graphData, model.graphDataTest, model.graphLen, 'staticSim-velocity', 'reference', this.graphSize);
     // refVelocityGraph = drawVelocity(model.graphData, model.graphLen, 'staticSim-velocity', 'reference', this.graphSize);
     this.refVelocityGraph.style.transformOrigin = 'left top 0px';
     console.log(this.refVelocityGraph.style)
     this.refVelocityGraph.offsetWidth = 250
     this.refVelocityGraph.offsetHeight = 250
-    this.refVelocityGraph = new phet.scenery.DOM(this.refVelocityGraph);
-    // this.refVelocityGraph = new phet.scenery.DOM(refVelocityGraph);
+    this.refVelocityGraph = new DOM(this.refVelocityGraph);
+    // this.refVelocityGraph = new DOM(refVelocityGraph);
     // this.graphSize = this.layoutBounds.maxX / 4
 
     // this.rootNode.addChild(this.refVelocityGraph);
     this.addChild(this.refVelocityGraph);
-    this.refVelocityGraph.centerBottom = new phet.dot.Vector2((window.innerWidth * 2.7) / 4, window.innerHeight / 2.2 - 20);
+    this.refVelocityGraph.centerBottom = new Vector2((window.innerWidth * 2.7) / 4, window.innerHeight / 2.2 - 20);
 
 
 
 
-    this.refVelocityGraph.centerBottom = new phet.dot.Vector2((window.innerWidth * 2.7) / 4, window.innerHeight / 2.2 - 20);
+    this.refVelocityGraph.centerBottom = new Vector2((window.innerWidth * 2.7) / 4, window.innerHeight / 2.2 - 20);
 
 
+    //HERE
+    // testVelocityGraph.id = 'variableSim-velocity';
+    // this.testVelocityGraph = drawVelocity(model.graphDataTest, model.graphData, model.graphLen, 'variableSim-velocity', 'test', this.graphSize, this.beadOnCharts);
+    // this.testVelocityGraph.offsetWidth = 250
+    // this.testVelocityGraph.offsetHeight = 250
+    // this.testVelocityGraph = new DOM(this.testVelocityGraph);
 
-    testVelocityGraph.id = 'variableSim-velocity';
-    this.testVelocityGraph = drawVelocity(model.graphDataTest, model.graphLen, 'variableSim-velocity', 'test', this.graphSize, this.beadOnCharts);
-    this.testVelocityGraph.offsetWidth = 250
-    this.testVelocityGraph.offsetHeight = 250
-    this.testVelocityGraph = new phet.scenery.DOM(this.testVelocityGraph);
 
-    // this.rootNode.addChild(this.testVelocityGraph);
-    this.addChild(this.testVelocityGraph);
-    // rootNode.addChild(this.testVelocityGraph)
-    this.testVelocityGraph.centerBottom = new phet.dot.Vector2((window.innerWidth * 2.7) / 4, window.innerHeight * 1.8 / 2.2 - 20);
+    // this.addChild(this.testVelocityGraph);
+
+    // this.testVelocityGraph.centerBottom = new Vector2((window.innerWidth * 2.7) / 4, window.innerHeight * 1.8 / 2.2 - 20);
+    //HERE
 
 
 
     refThetaGraph.id = 'staticSim-theta';
-    this.refThetaGraph = drawTheta(model.graphData, model.graphLen, 'staticSim-theta', 'reference', this.graphSize);
+    this.refThetaGraph = drawTheta(model.graphData, model.graphDataTest, model.graphLen, 'staticSim-theta', 'reference', this.graphSize);
     this.refThetaGraph.offsetWidth = 250
     this.refThetaGraph.offsetHeight = 250
-    this.refThetaGraph = new phet.scenery.DOM(this.refThetaGraph);
+    this.refThetaGraph = new DOM(this.refThetaGraph);
 
-    // this.rootNode.addChild(this.refThetaGraph);
+
     this.addChild(this.refThetaGraph);
-    this.refThetaGraph.centerBottom = new phet.dot.Vector2(this.testVelocityGraph.leftBottom.x + this.graphSize * 1.45, window.innerHeight / 2.2 - 20);
+    // HERE
+    // this.refThetaGraph.centerBottom = new Vector2(this.testVelocityGraph.leftBottom.x + this.graphSize * 1.45, window.innerHeight / 2.2 - 20);
+    this.refThetaGraph.centerBottom = new Vector2(this.refVelocityGraph.leftBottom.x + this.graphSize * 1.45, window.innerHeight / 2.2 - 20);
 
 
+    // HERE
+    // testThetaGraph.id = 'variableSim-theta';
+    // this.testThetaGraph = drawTheta(model.graphDataTest, model.graphData, model.graphLen, 'variableSim-theta', 'test', this.graphSize, this.beadOnCharts);
+    // this.testThetaGraph.offsetWidth = 250
+    // this.testThetaGraph.offsetHeight = 250
+    // this.testThetaGraph = new DOM(this.testThetaGraph);
 
-    testThetaGraph.id = 'variableSim-theta';
-    this.testThetaGraph = drawTheta(model.graphDataTest, model.graphLen, 'variableSim-theta', 'test', this.graphSize, this.beadOnCharts);
-    this.testThetaGraph.offsetWidth = 250
-    this.testThetaGraph.offsetHeight = 250
-    this.testThetaGraph = new phet.scenery.DOM(this.testThetaGraph);
-
-    // this.rootNode.addChild(this.testThetaGraph);
-    this.addChild(this.testThetaGraph);
-    this.testThetaGraph.centerBottom = new phet.dot.Vector2(this.testVelocityGraph.leftBottom.x + this.graphSize * 1.45, window.innerHeight * 1.8 / 2.2 - 20);
+    // // this.rootNode.addChild(this.testThetaGraph);
+    // this.addChild(this.testThetaGraph);
+    // this.testThetaGraph.centerBottom = new Vector2(this.testVelocityGraph.leftBottom.x + this.graphSize * 1.45, window.innerHeight * 1.8 / 2.2 - 20);
+    // HERE
 
 
 
@@ -326,7 +330,7 @@ export class SimScreenView extends ScreenView {
 
 
     // let toggleRadius = 13;
-    const exText = new phet.scenery.Text("radius", { fontSize: fontSize, textAlign: false });
+    const exText = new Text("radius", { fontSize: fontSize, textAlign: false });
     const exRichText = new RichText('✎');
     const simSpeedSlider = new HSlider(model.simSpeedProp, new Range(0.000, Number(0.5)));
 
@@ -334,18 +338,18 @@ export class SimScreenView extends ScreenView {
 
     const sliderGap = new Rectangle(0, 0, 0, 10);
     // fontSize = window.innerWidth/50;
-    const radius = new RichText("radius (<i>r</i>)", { fontSize: fontSize, textAlign: 'left' })
-    const gravity = new RichText("gravity (<i>g</i>)", { fontSize: fontSize, textAlign: 'left' })
-    const friction = new RichText("friction (<i>k</i>)", { fontSize: fontSize, textAlign: 'left' })
-    const ang = new RichText("ang. vel. (<i>ω</i>)", { fontSize: fontSize, textAlign: 'left' })
-    const ang1 = new RichText("ang. vel. (<i>ω</i>)", { fontSize: fontSize, textAlign: 'left' })
-    const angP = new RichText("ang. pos. (<i>θ₀</i>)", { fontSize: fontSize, textAlign: 'left' })
-    const velocity = new RichText("velocity (<i>v₀</i>)", { fontSize: fontSize, textAlign: 'left' })
+    const radius = new RichText("radius (<i>r</i>)")
+    const gravity = new RichText("gravity (<i>g</i>)")
+    const friction = new RichText("friction (<i>k</i>)")
+    const ang = new RichText("ang. vel. (<i>ω</i>)")
+    const ang1 = new RichText("ang. vel. (<i>ω</i>)")
+    const angP = new RichText("ang. pos. (<i>θ₀</i>)")
+    const velocity = new RichText("velocity (<i>v₀</i>)")
 
     const textVBoxConstants = new VBox({
       align: 'center', children: [
 
-        new Rectangle(0, 0, 120, 0),
+        // new Rectangle(0, 0, 120, 0),
         new Rectangle(0, 0, 0, simSpeedSlider.height - radius.height + sliderGap.height),
 
         radius,
@@ -387,18 +391,18 @@ export class SimScreenView extends ScreenView {
 
     const sliderVboxConstants = new VBox({
       children: [
-        new Rectangle(0, 0, 0, 5),
+        new Rectangle(0, 0, 0, 10),
         radiusSlider,
         // new HSlider(model.radiusProp, new Range(0.1, Number(100))),
-        new Rectangle(0, 0, 0, 5),
+        new Rectangle(0, 0, 0, 10),
         new HSlider(model.gravityProp, new Range(0, Number(25))),
-        new Rectangle(0, 0, 0, 5),
+        new Rectangle(0, 0, 0, 10),
         new HSlider(model.frictionProp, new Range(0, Number(100))),
-        new Rectangle(0, 0, 0, 5),
+        new Rectangle(0, 0, 0, 10),
         new HSlider(model.omegaRadsProp, new Range(0, Number(20))),
-        new Rectangle(0, 0, 0, 5),
+        new Rectangle(0, 0, 0, 10),
         new HSlider(model.omegaProp, new Range(0, Number(1145.92))),
-        new Rectangle(0, 0, 0, 5),
+        new Rectangle(0, 0, 0, 10),
       ]
     })
 
@@ -419,22 +423,28 @@ export class SimScreenView extends ScreenView {
 
     const buttonVBoxConstants = new VBox({
       children: [
-        new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height - 2),
-        new RoundToggleButton(buttonRadius, false, true, { radius: toggleRadius, content: new phet.scenery.Text('✎', { fontSize: 120, maxWidth: 15 }) }),
+        // new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height - 2),
+        new Rectangle(0, 0, 0, 20),
+        new RoundToggleButton(buttonRadius, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 120, maxWidth: 15 }) }),
 
-        new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
-        new RoundToggleButton(buttonGravity, false, true, { radius: toggleRadius, content: new phet.scenery.Text('✎', { fontSize: 20, maxWidth: 15 }) }),
+        // new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
+        new Rectangle(0, 0, 0, 22),
+        new RoundToggleButton(buttonGravity, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
 
-        new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
-        new RoundToggleButton(buttonFriction, false, true, { radius: toggleRadius, content: new phet.scenery.Text('✎', { fontSize: 20, maxWidth: 15 }) }),
+        // new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
+        new Rectangle(0, 0, 0, 22),
+        new RoundToggleButton(buttonFriction, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
 
-        new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
-        new RoundToggleButton(buttonOmegaRads, false, true, { radius: toggleRadius, content: new phet.scenery.Text('✎', { fontSize: 20, maxWidth: 15 }) }),
+        // new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
+        new Rectangle(0, 0, 0, 22),
+        new RoundToggleButton(buttonOmegaRads, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
 
-        new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
-        new RoundToggleButton(buttonOmega, false, true, { radius: toggleRadius, content: new phet.scenery.Text('✎', { fontSize: 20, maxWidth: 15 }) }),
+        // new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
+        new Rectangle(0, 0, 0, 22),
+        new RoundToggleButton(buttonOmega, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
 
-        new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height),
+        new Rectangle(0, 0, 0, 20),
+        // new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height),
 
       ]
     })
@@ -442,10 +452,10 @@ export class SimScreenView extends ScreenView {
     const buttonVBoxInitial = new VBox({
       children: [
         new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 2),
-        new RoundToggleButton(buttonTheta, false, true, { radius: toggleRadius, content: new phet.scenery.Text('✎', { fontSize: 20, maxWidth: 15 }) }),
+        new RoundToggleButton(buttonTheta, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
 
         new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
-        new RoundToggleButton(buttonVelocity, false, true, { radius: toggleRadius, content: new phet.scenery.Text('✎', { fontSize: 20, maxWidth: 15 }) }),
+        new RoundToggleButton(buttonVelocity, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
 
         new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
 
@@ -460,8 +470,8 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.radiusProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new phet.scenery.Text(new DerivedProperty([model.radiusProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new phet.scenery.Text(" m", { fontSize: fontSize, textAlign: 'left' })
+            new Text(new DerivedProperty([model.radiusProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(" m", { fontSize: fontSize, textAlign: 'left' })
           ]
         }),
         new Rectangle(0, 0, 0, simSpeedSlider.height - exText.height + sliderGap.height),
@@ -469,8 +479,8 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.gravityProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new phet.scenery.Text(new DerivedProperty([model.gravityProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new phet.scenery.Text(" m/s²", { fontSize: fontSize, textAlign: 'left' }),
+            new Text(new DerivedProperty([model.gravityProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(" m/s²", { fontSize: fontSize, textAlign: 'left' }),
 
           ]
         }),
@@ -479,8 +489,8 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.frictionProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new phet.scenery.Text(new DerivedProperty([model.frictionProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new phet.scenery.Text(" 1/s", { fontSize: fontSize, textAlign: 'left' })
+            new Text(new DerivedProperty([model.frictionProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(" 1/s", { fontSize: fontSize, textAlign: 'left' })
           ]
         }),
         new Rectangle(0, 0, 0, simSpeedSlider.height - exText.height + sliderGap.height),
@@ -488,8 +498,8 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.omegaRadsProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new phet.scenery.Text(new DerivedProperty([model.omegaRadsProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new phet.scenery.Text(" rad/s", { fontSize: fontSize, textAlign: 'left' })
+            new Text(new DerivedProperty([model.omegaRadsProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(" rad/s", { fontSize: fontSize, textAlign: 'left' })
           ]
         }),
         new Rectangle(0, 0, 0, simSpeedSlider.height - exText.height + sliderGap.height),
@@ -497,8 +507,8 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new phet.scenery.Text(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new phet.scenery.Text(" °/s", { fontSize: fontSize, textAlign: 'left' })
+            new Text(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(" °/s", { fontSize: fontSize })
           ]
         }),
 
@@ -511,8 +521,8 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 3, 0),
             // new RichText(new DerivedProperty([model.thetaProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new phet.scenery.Text(new DerivedProperty([model.thetaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new phet.scenery.Text(" °", { fontSize: fontSize, textAlign: 'left' })
+            new Text(new DerivedProperty([model.thetaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(" °", { fontSize: fontSize })
           ]
         }),
         new Rectangle(0, 0, 0, simSpeedSlider.height - exText.height + sliderGap.height),
@@ -520,8 +530,8 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 3, 0),
             // new RichText(new DerivedProperty([model.velocityProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new phet.scenery.Text(new DerivedProperty([model.velocityProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new phet.scenery.Text(" m/s", { fontSize: fontSize, textAlign: 'left' })
+            new Text(new DerivedProperty([model.velocityProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(" m/s", { fontSize: fontSize })
           ]
         }),
 
@@ -531,23 +541,24 @@ export class SimScreenView extends ScreenView {
     });
     // const panelWidth = new HBox({ children: [textVBoxConstants, sliderVboxConstants, buttonVBoxConstants, dynamicTextVBoxConstants] }).width
 
-    const titleInitial = new phet.scenery.Text(" Initial Conditions", { fontSize: fontSize });
+    const titleInitial = new Text("Initial Conditions", { fontSize: fontSize });
 
 
-    const titleConstants = new phet.scenery.Text(" Constants", { fontSize: fontSize })
+
+    const titleConstants = new Text("Constants", { fontSize: fontSize });
 
     const panelConstants = new Panel(new VBox({ align: 'center', children: [titleConstants, new HBox({ children: [textVBoxConstants, sliderVboxConstants, buttonVBoxConstants, (dynamicTextVBoxConstants)] })] }), {
       fill: new Color(210, 210, 210)
 
     })
     // const panelInitial = new Panel(new VBox({ align: 'center', children: [titleInitial, new HBox({ children: [textVBoxInitial, sliderVboxInitial, new HBox({ children: [buttonVBoxInitial] }), new Rectangle(0, 0, 10, 0), dynamicTextVBoxInitial] }), new Rectangle(0, 0, panelWidth, 0)] }), { fill: new Color(210, 210, 210), maxWidth: panelConstants.width, minHeight: window.innerHeight / 20, minWidth: panelConstants.width })
-    const panelInitial = new Panel(new VBox({ align: 'center', children: [titleInitial, new HBox({ children: [textVBoxInitial, sliderVboxInitial, new HBox({ children: [buttonVBoxInitial] }), new Rectangle(0, 0, 10, 0), dynamicTextVBoxInitial] }), new Rectangle(0, 0, 450, 0)] }), { fill: new Color(210, 210, 210), maxWidth: panelConstants.width, minHeight: window.innerHeight / 20, minWidth: panelConstants.width })
+    const panelInitial = new Panel(new VBox({ align: 'center', children: [titleInitial, new HBox({ children: [textVBoxInitial, sliderVboxInitial, new HBox({ children: [buttonVBoxInitial] }), new Rectangle(0, 0, 10, 0), dynamicTextVBoxInitial] })] }), { fill: new Color(210, 210, 210), maxWidth: panelConstants.width, minHeight: window.innerHeight / 20, minWidth: panelConstants.width })
     this.addChild(panelInitial)
 
     this.addChild(panelConstants)
 
 
-    panelConstants.leftTop = new phet.dot.Vector2(0, 0);
+    panelConstants.leftTop = new Vector2(0, 0);
 
 
 
@@ -641,13 +652,13 @@ export class SimScreenView extends ScreenView {
     <span style="position: absolute; top: -0.8em; left: 45%; transform: translateX(-50%);">.</span>
     </span>=  `;
     thetadot.style.fontSize = `${fontSize + 5}px`
-    const thetadotDOM = new phet.scenery.DOM((thetadot));
+    const thetadotDOM = new DOM((thetadot));
 
 
     const vdot = document.createElement('span');
     vdot.innerHTML = '<span>v&#x307;</span>=  ';
     vdot.style.fontSize = `${fontSize + 5}px`
-    const vdotDOM = new phet.scenery.DOM((vdot));
+    const vdotDOM = new DOM((vdot));
 
 
     const buttonAddTheta = new Property<boolean>(false);
@@ -668,7 +679,7 @@ export class SimScreenView extends ScreenView {
     const buttonAddThetaDOM = new RectangularToggleButton(buttonAddTheta, false, true, { minWidth: 300, minHeight: 20, content: new RichText('insert (θ) into equation') })
 
     const buttonAddOmegaDOM = new RectangularToggleButton(buttonAddOmega, false, true, { minWidth: 300, minHeight: 20, content: new RichText('insert (ω) into equation') })
-    const testEquation = new phet.scenery.Text("Test Equations", { fontSize: fontSize, textAlign: 'left' })
+    const testEquation = new Text("Test Equations", { fontSize: fontSize + 5 })
     const equationPanel = new Panel(new VBox({
       minimumWidth: 400,
       align: 'center', children: [
@@ -688,34 +699,34 @@ export class SimScreenView extends ScreenView {
     }), { fill: new Color(210, 210, 210), maxHeight: 400, align: "center", minHeight: 100, maxWidth: panelInitial.rightTop.x, minWidth: panelInitial.width });
     this.addChild(equationPanel);
 
-    panelInitial.centerTop = new phet.dot.Vector2(panelConstants.centerBottom.x, panelConstants.centerBottom.y + 10)
-    panelInitial.centerTop = new phet.dot.Vector2(panelConstants.centerBottom.x, panelConstants.centerBottom.y + 10);
-    panelInitial.centerTop = new phet.dot.Vector2(panelConstants.centerBottom.x, panelConstants.centerBottom.y + 10);
+    panelInitial.centerTop = new Vector2(panelConstants.centerBottom.x, panelConstants.centerBottom.y + 10)
+    panelInitial.centerTop = new Vector2(panelConstants.centerBottom.x, panelConstants.centerBottom.y + 10);
+    panelInitial.centerTop = new Vector2(panelConstants.centerBottom.x, panelConstants.centerBottom.y + 10);
 
 
     this.project = true;
     this.projectTemp = this.project;
     const projectSwitch = new Property<boolean>(this.project);
     projectSwitch.lazyLink(() => { this.projectTemp = !this.projectTemp })
-    const simSpeedTitle = new phet.scenery.Text("simSpeed", { fontSize: fontSize, textAlign: 'left' })
+    const simSpeedTitle = new Text("simSpeed", { fontSize: fontSize, textAlign: 'left' })
 
-    let speedRate = new phet.scenery.Text(new DerivedProperty([model.simSpeedProp], (value) => { return String(Number(Math.abs(value)).toFixed(3)) }), { fontSize: fontSize, textAlign: 'left' })
+    let speedRate = new Text(new DerivedProperty([model.simSpeedProp], (value) => { return String(Number(Math.abs(value)).toFixed(3)) }), { fontSize: fontSize, textAlign: 'left' })
     window.addEventListener("keypress", (e) => {
       if (e.key == " ") {
-        speedRate = new phet.scenery.Text(("d"), { fontSize: fontSize, textAlign: 'left' })
+        speedRate = new Text(("d"), { fontSize: fontSize, textAlign: 'left' })
 
       }
     })
-    const measuresign = new phet.scenery.Text("x", { fontSize: fontSize, textAlign: 'left' })
+    const measuresign = new Text("x", { fontSize: fontSize, textAlign: 'left' })
     const visualBox = new VBox({
       align: 'center', children: [
         new HBox({
           children: [
             simSpeedTitle,
             simSpeedSlider,
-            new RoundToggleButton(buttonSimSpeed, false, true, { radius: 12, content: new phet.scenery.Text('✎', { fontSize: 20, maxWidth: 15 }) }),
+            new RoundToggleButton(buttonSimSpeed, false, true, { radius: 12, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
 
-            // new phet.scenery.Text('✎', { fontSize: 20, textAlign: 'center' }),
+            // new Text('✎', { fontSize: 20, textAlign: 'center' }),
             new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height),
             new HBox({
               children: [
@@ -730,16 +741,16 @@ export class SimScreenView extends ScreenView {
       ]
     });
 
-    const referenceLabel = new phet.scenery.Text('Reference:', { fontSize: fontSize });
-    const testLabel = new phet.scenery.Text('Test:', { fontSize: fontSize });
+    const referenceLabel = new Text('Reference:', { fontSize: fontSize });
+    const testLabel = new Text('Test:', { fontSize: fontSize });
 
-    visualBox.leftTop = new phet.dot.Vector2(0, equationPanel.centerY + 10)
+    visualBox.leftTop = new Vector2(0, equationPanel.centerY + 10)
 
-    resetAllButton.leftTop = new phet.dot.Vector2(0, equationPanel.rightBottom.y + 10)
+    resetAllButton.leftTop = new Vector2(0, equationPanel.rightBottom.y + 10)
 
 
 
-    referenceLabel.leftCenter = new phet.dot.Vector2(panelConstants.rightCenter.x + 10, 20);
+    referenceLabel.leftCenter = new Vector2(panelConstants.rightCenter.x + 10, 20);
 
 
     const lineRect = new Rectangle(0, 0, this.layoutBounds.maxX / 3.5, 2, { fill: new Color("black") });
@@ -768,7 +779,7 @@ export class SimScreenView extends ScreenView {
     renderer.setSize(this.layoutBounds.maxX / 3.5, this.layoutBounds.maxY / 3.5);
 
     document.body.appendChild(renderer.domElement)
-    const domNode = new phet.scenery.DOM(renderer.domElement);
+    const domNode = new DOM(renderer.domElement);
     this.domNode = domNode;
     // this.addChild(domNode);
     this.addChild(this.domNode);
@@ -792,7 +803,7 @@ export class SimScreenView extends ScreenView {
 
     })
 
-    const domNode2 = new phet.scenery.DOM(renderer2.domElement)
+    const domNode2 = new DOM(renderer2.domElement)
     this.addChild(domNode2)
     // this.addChild(rootNode)
     scene.add(camera)
@@ -1087,31 +1098,31 @@ export class SimScreenView extends ScreenView {
     buttonVelocity.lazyLink(() => { model.velocityProp.value = Number(window.prompt("Enter value for velocity:")); post(model.name, "velocity changed", model.radiusProp.value, model.gravityProp.value, model.frictionProp.value, model.omegaProp.value, model.thetaProp.value, model.velocityProp.value, model.velocityEQ, model.thetaEQ, model.id); reset(); })
     buttonSimSpeed.lazyLink(() => { model.simSpeedProp.value = Number(window.prompt("Enter value for simulation speed:")); })
 
-    equationPanel.leftTop = new phet.dot.Vector2(0, panelInitial.leftBottom.y + 10);
-    visualBox.leftTop = new phet.dot.Vector2(0, equationPanel.centerBottom.y + 10)
-    resetAllButton.leftTop = new phet.dot.Vector2(0, visualBox.centerBottom.y + 10)
+    equationPanel.leftTop = new Vector2(0, panelInitial.leftBottom.y + 10);
+    visualBox.leftTop = new Vector2(0, equationPanel.centerBottom.y + 10)
+    resetAllButton.leftTop = new Vector2(0, visualBox.centerBottom.y + 10)
 
 
     const speedController = visualBox
-    speedController.leftTop = new phet.dot.Vector2(0, equationPanel.centerBottom.y + 10)
+    speedController.leftTop = new Vector2(0, equationPanel.centerBottom.y + 10)
     const speedPanel = new Panel(new VBox({ align: 'center', children: [new HBox({ align: "center", children: [speedController, new Rectangle(0, 0, 40, 0), new VBox({ align: 'right', children: [resetAllButton] })] })] }), { minWidth: equationPanel.width, maxWidth: equationPanel.width, fill: new Color(210, 210, 210) })
     this.addChild(speedPanel)
-    ResumeButton.leftTop = new phet.dot.Vector2(0, equationPanel.centerBottom.y + speedPanel.height + 15)
-    pauseButton.leftTop = new phet.dot.Vector2(0, equationPanel.centerBottom.y + speedPanel.height + 15)
-    resetInitialsButton.leftTop = new phet.dot.Vector2(0, pauseButton.centerBottom.y + 20)
+    ResumeButton.leftTop = new Vector2(0, equationPanel.centerBottom.y + speedPanel.height + 15)
+    pauseButton.leftTop = new Vector2(0, equationPanel.centerBottom.y + speedPanel.height + 15)
+    resetInitialsButton.leftTop = new Vector2(185, pauseButton.centerBottom.y - 20)
 
 
 
 
 
 
-    speedPanel.leftTop = new phet.dot.Vector2(0, equationPanel.centerBottom.y + 10)
+    speedPanel.leftTop = new Vector2(0, equationPanel.centerBottom.y + 10)
 
-    this.domNode.leftTop = new phet.dot.Vector2(referenceLabel.rightCenter.x - referenceLabel.width, referenceLabel.rightCenter.y + window.innerHeight / 20);
+    this.domNode.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, referenceLabel.rightCenter.y + window.innerHeight / 20);
     const resizeListener = () => {
 
       camera.aspect = this.layoutBounds.maxX / this.layoutBounds.maxY
-      // domNode.leftTop = new phet.dot.Vector2(referenceLabel.rightCenter.x - referenceLabel.width, referenceLabel.rightCenter.y + window.innerHeight / 20);
+      // domNode.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, referenceLabel.rightCenter.y + window.innerHeight / 20);
       camera.updateProjectionMatrix()
 
     };
@@ -1120,7 +1131,7 @@ export class SimScreenView extends ScreenView {
       resizeListener();
     });
     resizeListener();
-    domNode2.leftTop = new phet.dot.Vector2(referenceLabel.rightCenter.x - referenceLabel.width, testLabel.rightCenter.y);
+    domNode2.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, testLabel.rightCenter.y);
     const resizeListener2 = () => {
 
       // camera2.aspect = window.innerWidth / window.innerHeight
@@ -1133,14 +1144,15 @@ export class SimScreenView extends ScreenView {
       resizeListener2();
     });
     resizeListener2();
-    this.refVelocityGraph.leftTop = new phet.dot.Vector2(this.domNode.rightTop.x - 40, 30)
-    this.refThetaGraph.leftTop = new phet.dot.Vector2(this.domNode.rightTop.x + this.graphSize - 50, 30)
-    this.testVelocityGraph.leftTop = new phet.dot.Vector2(this.refVelocityGraph.leftBottom.x, this.refVelocityGraph.leftBottom.y + 10)
-    this.testThetaGraph.leftTop = new phet.dot.Vector2(this.refThetaGraph.leftBottom.x - 10, this.refThetaGraph.leftBottom.y + 10)
-    this.domNode.leftTop = new phet.dot.Vector2(referenceLabel.rightCenter.x - referenceLabel.width, referenceLabel.leftBottom.y);
-    lineRect.leftCenter = new phet.dot.Vector2(this.domNode.leftBottom.x, this.domNode.leftBottom.y + 70)
-    testLabel.leftTop = new phet.dot.Vector2(panelConstants.rightCenter.x + 10, this.domNode.leftBottom.y + 80)
-    domNode2.leftTop = new phet.dot.Vector2(referenceLabel.rightCenter.x - referenceLabel.width, testLabel.rightCenter.y);
+    this.refVelocityGraph.leftTop = new Vector2(this.domNode.rightTop.x - 40, 30)
+    this.refThetaGraph.leftTop = new Vector2(this.domNode.rightTop.x + this.graphSize - 50, 30)
+    // HERE
+    // this.testVelocityGraph.leftTop = new Vector2(this.refVelocityGraph.leftBottom.x, this.refVelocityGraph.leftBottom.y + 10)
+    // this.testThetaGraph.leftTop = new Vector2(this.refThetaGraph.leftBottom.x - 10, this.refThetaGraph.leftBottom.y + 10)
+    this.domNode.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, referenceLabel.leftBottom.y);
+    lineRect.leftCenter = new Vector2(this.domNode.leftBottom.x, this.domNode.leftBottom.y + 70)
+    testLabel.leftTop = new Vector2(panelConstants.rightCenter.x + 10, this.domNode.leftBottom.y + 80)
+    domNode2.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, testLabel.rightCenter.y);
 
 
 
@@ -1272,13 +1284,82 @@ export class SimScreenView extends ScreenView {
         .range([margin.bottom, height - margin.bottom]);
       this.refThetaGraph.element.children[6].setAttribute('cx', xRef(this.model.timer));
       this.refThetaGraph.element.children[6].setAttribute('cy', yRef(this.model.angle));
-      this.testThetaGraph.element.children[6].setAttribute('cx', xTest(this.model.timer));
-      this.testThetaGraph.element.children[6].setAttribute('cy', yTest(this.model.angleTest));
+      // HERE
+      // this.testThetaGraph.element.children[6].setAttribute('cx', xTest(this.model.timer));
+      // this.testThetaGraph.element.children[6].setAttribute('cy', yTest(this.model.angleTest));
 
       this.refVelocityGraph.element.children[6].setAttribute('cx', xRef(this.model.timer));
       this.refVelocityGraph.element.children[6].setAttribute('cy', yVref(this.model.velocity));
-      this.testVelocityGraph.element.children[6].setAttribute('cx', xTest(this.model.timer));
-      this.testVelocityGraph.element.children[6].setAttribute('cy', yVtest(this.model.velocityTest));
+      // HERE
+      // this.testVelocityGraph.element.children[6].setAttribute('cx', xTest(this.model.timer));
+      // this.testVelocityGraph.element.children[6].setAttribute('cy', yVtest(this.model.velocityTest));
+      // Update theta dots
+      const thetaSvg = this.refThetaGraph.element;
+      const xTheta = d3.scaleLinear()
+        .domain([0, this.model.graphLen])
+        .range([margin.left, width + margin.left]);
+      const yTheta = d3.scaleLinear()
+        .domain([
+          Math.min(
+            d3.min(this.model.graphData.data, (d: any) => d.theta * 180 / Math.PI),
+            d3.min(this.model.graphDataTest.data, (d: any) => d.theta * 180 / Math.PI)
+          ),
+          Math.max(
+            d3.max(this.model.graphData.data, (d: any) => d.theta * 180 / Math.PI),
+            d3.max(this.model.graphDataTest.data, (d: any) => d.theta * 180 / Math.PI)
+          )
+        ])
+        .range([height - margin.bottom, margin.bottom]);
+
+      thetaSvg.querySelector("#dot-ref-theta")?.setAttribute("cx", xTheta(this.model.timer));
+      thetaSvg.querySelector("#dot-ref-theta")?.setAttribute("cy", yTheta(this.model.angle * 180 / Math.PI));
+      thetaSvg.querySelector("#dot-test-theta")?.setAttribute("cx", xTheta(this.model.timer));
+      thetaSvg.querySelector("#dot-test-theta")?.setAttribute("cy", yTheta(this.model.angleTest * 180 / Math.PI));
+
+      // Update velocity dots
+      const velocitySvg = this.refVelocityGraph.element;
+      const xVel = d3.scaleLinear()
+        .domain([0, this.model.graphLen])
+        .range([margin.left, width + margin.left]);
+      const yVel = d3.scaleLinear()
+        .domain([
+          Math.min(
+            d3.min(this.model.graphData.data, (d: any) => d.velocity),
+            d3.min(this.model.graphDataTest.data, (d: any) => d.velocity)
+          ),
+          Math.max(
+            d3.max(this.model.graphData.data, (d: any) => d.velocity),
+            d3.max(this.model.graphDataTest.data, (d: any) => d.velocity)
+          )
+        ])
+        .range([height - margin.bottom, margin.bottom]);
+
+      velocitySvg.querySelector("#dot-ref-velocity")?.setAttribute("cx", xVel(this.model.timer));
+      velocitySvg.querySelector("#dot-ref-velocity")?.setAttribute("cy", yVel(this.model.velocity));
+      velocitySvg.querySelector("#dot-test-velocity")?.setAttribute("cx", xVel(this.model.timer));
+      velocitySvg.querySelector("#dot-test-velocity")?.setAttribute("cy", yVel(this.model.velocityTest));
+
+      // const velocitySvg = this.refVelocityGraph.element;
+      // const xVel = d3.scaleLinear()
+      //   .domain([0, this.model.graphLen])
+      //   .range([margin.left, width + margin.left]);
+      // const yVel = d3.scaleLinear()
+      //   .domain([
+      //     Math.min(
+      //       d3.min(this.model.graphData.data, (d: any) => d.velocity),
+      //       d3.min(this.model.graphDataTest.data, (d: any) => d.velocity)
+      //     ),
+      //     Math.max(
+      //       d3.max(this.model.graphData.data, (d: any) => d.velocity),
+      //       d3.max(this.model.graphDataTest.data, (d: any) => d.velocity)
+      //     )
+      //   ])
+      //   .range([height - margin.bottom, margin.bottom]);
+
+      // velocitySvg.querySelector("#dot-ref-velocity")?.setAttribute("cx", xVel(this.model.timer));
+      // velocitySvg.querySelector("#dot-ref-velocity")?.setAttribute("cy", yVel(this.model.velocity));
+      // velocitySvg.querySelector("#dot-test-velocity")?.setAttribute("cx", xVel(this.model.timer));
+      // velocitySvg.querySelector("#dot-test-velocity")?.setAttribute("cy", yVel(this.model.velocityTest));
 
       if (this.model.updateGraphs) {
 
@@ -1290,10 +1371,10 @@ export class SimScreenView extends ScreenView {
         this.refVelocityGraph.detach()
 
 
-        this.refVelocityGraph = drawVelocity(this.model.graphData, this.model.graphLen, 'staticSim-velocity', 'reference', this.graphSize);
+        this.refVelocityGraph = drawVelocity(this.model.graphData, this.model.graphDataTest, this.model.graphLen, 'staticSim-velocity', 'reference', this.graphSize);
         this.refVelocityGraph.offsetWidth = 250
         this.refVelocityGraph.offsetHeight = 250
-        this.refVelocityGraph = new phet.scenery.DOM(this.refVelocityGraph);
+        this.refVelocityGraph = new DOM(this.refVelocityGraph);
         this.refVelocityGraph._container.style.transformOrigin = 'left top 0px';
 
 
@@ -1304,40 +1385,44 @@ export class SimScreenView extends ScreenView {
         this.addChild(this.refVelocityGraph);
 
         this.refThetaGraph.detach()
-        this.refThetaGraph = drawTheta(this.model.graphData, this.model.graphLen, 'staticSim-theta', 'reference', this.graphSize);
+        this.refThetaGraph = drawTheta(this.model.graphData, this.model.graphDataTest, this.model.graphLen, 'staticSim-theta', 'reference', this.graphSize);
         this.refThetaGraph.offsetWidth = 250
         this.refThetaGraph.offsetHeight = 250
-        this.refThetaGraph = new phet.scenery.DOM(this.refThetaGraph);
-        // this.refThetaGraph = new phet.scenery.DOM(drawTheta(this.model.graphData, this.model.graphLen, 'staticSim-theta', 'reference', this.graphSize));
+        this.refThetaGraph = new DOM(this.refThetaGraph);
+        // this.refThetaGraph = new DOM(drawTheta(this.model.graphData, this.model.graphLen, 'staticSim-theta', 'reference', this.graphSize));
         this.refThetaGraph._container.style.transformOrigin = 'left top 0px';
 
         this.addChild(this.refThetaGraph);
 
-        this.testVelocityGraph.detach()
-        this.testVelocityGraph = drawVelocity(this.model.graphDataTest, this.model.graphLen, 'variableSim-velocity', 'test', this.graphSize, this.beadOnCharts);
-        this.testVelocityGraph.offsetWidth = 250
-        this.testVelocityGraph.offsetHeight = 250
-        this.testVelocityGraph = new phet.scenery.DOM(this.testVelocityGraph);
-        // this.testVelocityGraph = new phet.scenery.DOM(drawVelocity(this.model.graphDataTest, this.model.graphLen, 'staticSim-velocity', 'test', this.graphSize, this.beadOnCharts));
-        this.testVelocityGraph._container.style.transformOrigin = 'left top 0px';
-        this.addChild(this.testVelocityGraph);
+
+        // HERE
+        // this.testVelocityGraph.detach()
+        // this.testVelocityGraph = drawVelocity(this.model.graphDataTest, this.model.graphData, this.model.graphLen, 'variableSim-velocity', 'test', this.graphSize, this.beadOnCharts);
+        // this.testVelocityGraph.offsetWidth = 250
+        // this.testVelocityGraph.offsetHeight = 250
+        // this.testVelocityGraph = new DOM(this.testVelocityGraph);
+        // // this.testVelocityGraph = new DOM(drawVelocity(this.model.graphDataTest, this.model.graphLen, 'staticSim-velocity', 'test', this.graphSize, this.beadOnCharts));
+        // this.testVelocityGraph._container.style.transformOrigin = 'left top 0px';
+        // this.addChild(this.testVelocityGraph);
 
 
-        this.testThetaGraph.detach()
-        this.testThetaGraph = drawTheta(this.model.graphDataTest, this.model.graphLen, 'variableSim-theta', 'test', this.graphSize, this.beadOnCharts);
-        this.testThetaGraph.offsetWidth = 250
-        this.testThetaGraph.offsetHeight = 250
-        this.testThetaGraph = new phet.scenery.DOM(this.testThetaGraph);
-        // this.testThetaGraph = new phet.scenery.DOM(drawTheta(this.model.graphDataTest, this.model.graphLen, 'variableSim-theta', 'test', this.graphSize, this.beadOnCharts));
+        // this.testThetaGraph.detach()
+        // this.testThetaGraph = drawTheta(this.model.graphDataTest, this.model.graphData, this.model.graphLen, 'variableSim-theta', 'test', this.graphSize, this.beadOnCharts);
+        // this.testThetaGraph.offsetWidth = 250
+        // this.testThetaGraph.offsetHeight = 250
+        // this.testThetaGraph = new DOM(this.testThetaGraph);
+        // // this.testThetaGraph = new DOM(drawTheta(this.model.graphDataTest, this.model.graphLen, 'variableSim-theta', 'test', this.graphSize, this.beadOnCharts));
 
-        this.testThetaGraph._container.style.transformOrigin = 'left top 0px';
-        this.addChild(this.testThetaGraph);
+        // this.testThetaGraph._container.style.transformOrigin = 'left top 0px';
+        // this.addChild(this.testThetaGraph);
+        // HERE
 
 
-        this.refVelocityGraph.leftTop = new phet.dot.Vector2(this.domNode.rightTop.x - 40, 30)
-        this.refThetaGraph.leftTop = new phet.dot.Vector2(this.domNode.rightTop.x + this.graphSize - 50, 30)
-        this.testVelocityGraph.leftTop = new phet.dot.Vector2(this.refVelocityGraph.leftBottom.x, this.refVelocityGraph.leftBottom.y + 10)
-        this.testThetaGraph.leftTop = new phet.dot.Vector2(this.refThetaGraph.leftBottom.x - 10, this.refThetaGraph.leftBottom.y + 10)
+        this.refVelocityGraph.leftTop = new Vector2(this.domNode.rightTop.x - 40, 30)
+        this.refThetaGraph.leftTop = new Vector2(this.domNode.rightTop.x + this.graphSize - 50, 30)
+        // HERE
+        // this.testVelocityGraph.leftTop = new Vector2(this.refVelocityGraph.leftBottom.x, this.refVelocityGraph.leftBottom.y + 10)
+        // this.testThetaGraph.leftTop = new Vector2(this.refThetaGraph.leftBottom.x - 10, this.refThetaGraph.leftBottom.y + 10)
 
 
 
