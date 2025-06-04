@@ -67,9 +67,9 @@ export class SimModel {
 
 
     //check if have cookie
-
+    
     if (document.cookie) {
-
+      console.log()
     } else {
       document.cookie = `name=${this.name ? this.name : "unknown"}` + ` id=${makeid(20)}`
     }
@@ -144,7 +144,9 @@ export class SimModel {
 
       this.thetaEQ = '\\frac{v}{r}'
       this.velocityEQ = 'r\\cdot\\sin\\left(t\\right)\\left(o^2\\cdot\\cos\\left(t\\right)-\\frac{g}{r}\\right)-k\\cdot v'
+      // @ts-ignore
       this.thetaFunc = globalThis.window.evaluatex(this.thetaEQ, { k: this.friction, r: this.radius, g: this.gravity, o: this.omega * Math.PI / 180, p: Math.PI, e: Math.E }, { latex: true });
+      // @ts-ignore
       this.velocityFunc = globalThis.window.evaluatex(this.velocityEQ, { k: this.friction, r: this.radius, g: this.gravity, o: this.omega * Math.PI / 180, p: Math.PI, e: Math.E }, { latex: true });
       this.graphDataTest = getGraphData(this.graphUpdateInterval, this.velocityTest, this.angleTest * Math.PI / 180, this.omega, this.radius, this.gravity, this.friction, { thetadot: this.thetaFunc, velocitydot: this.velocityFunc }, true, this.graphLen, this.graphDataTest, this.timer, this.project);
 
@@ -191,10 +193,7 @@ export class SimModel {
     }
     // this.thetaEQ = '\\frac{v}{r}'
     // this.velocityEQ = 'r\\sin\\left(\\theta\\right)\\left(\\omega^2\\cos\\left(\\theta\\right)-\\frac{g}{r}\\right)-k\\cdot v'
-    if (this.velocityEQ && this.thetaEQ) {
-
-
-    }
+    
     // this.thetaFunc = globalThis.window.evaluatex(this.thetaEQ, {k:this.friction,r:this.radius,g:this.gravity,o:this.omega*Math.PI/180}, {latex:true});
     // this.velocityFunc = globalThis.window.evaluatex(this.velocityEQ, {k:this.friction,r:this.radius,g:this.gravity,o:this.omega*Math.PI/180}, {latex:true});
     // this.graphData = getGraphData(this.graphUpdateInterval, this.velocity, this.angle*Math.PI/180, this.omega, this.radius, this.gravity, this.friction, {}, false, this.graphLen, this.graphData, this.timer, this.project);
@@ -208,7 +207,9 @@ export class SimModel {
         this.graphDataTest = new simData(this.graphUpdateInterval)
         this.graphDataTest.insert(0, 0, 0)
       } else {
+        // @ts-ignore
         this.thetaFunc = globalThis.window.evaluatex(this.thetaEQ, { k: this.friction, r: this.radius, g: this.gravity, o: this.omega * Math.PI / 180, p: Math.PI, e: Math.E }, { latex: true });
+        // @ts-ignore
         this.velocityFunc = globalThis.window.evaluatex(this.velocityEQ, { k: this.friction, r: this.radius, g: this.gravity, o: this.omega * Math.PI / 180, p: Math.PI, e: Math.E }, { latex: true });
         this.graphDataTest = getGraphData(this.graphUpdateInterval, this.velocityTest, this.angleTest * Math.PI / 180, this.omega, this.radius, this.gravity, this.friction, { thetadot: this.thetaFunc, velocitydot: this.velocityFunc }, true, this.graphLen, this.graphDataTest, this.timer, this.project);
       }
@@ -246,8 +247,7 @@ export class SimModel {
 
       this.rotation += this.omega * dt * this.simSpeedProp.value * 0.0174533;
       if (this.timer < this.graphLen) {
-        let ballAngle = this.graphData.getTheta(this.timer);
-        let ballVelocity = this.graphData.getVelocity(this.timer);
+        
         // updateBallGraph(timer, ballAngle, ballVelocity, graphLen, thetaGraph, velocityGraph, graphData);
       } else {
         this.graphLen = this.graphLen + this.originalLen;

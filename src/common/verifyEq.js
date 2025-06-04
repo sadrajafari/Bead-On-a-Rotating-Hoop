@@ -7,14 +7,14 @@ let v = testV(elementVelocity,model)
 }
 
 function testV(element,model ){
-  // console.log(model.velocityEQ)
+
   if (model.velocityEQ === ''){
     if (Object.hasOwn(element, 'domElement')) {
       element.domElement.classList.remove('error');
-      console.log("NO ERROR")
+      
     } else{
       element.classList.remove('error');
-      console.log("NO ERROR")
+      
   
     }
     return true;
@@ -34,11 +34,11 @@ function testV(element,model ){
     
 
   } catch (err){
-    console.log(err)
+    
     // element.innerHTML="[BAD OR NO EQUATION INPUTED]";
     // element.text = "[BAD OR NO EQUATION INPUTED]";
     if (Object.hasOwn(element, 'domElement')){ // change to just be velocity elemnt
-      console.log("ERROR")
+      
       element.domElement.classList.add('error');
     } else{
       element.classList.add('error');
@@ -49,23 +49,23 @@ function testV(element,model ){
   }
   if (Object.hasOwn(element, 'domElement')) {
     element.domElement.classList.remove('error');
-    console.log("NO ERROR")
+    
   } else{
     element.classList.remove('error');
-    console.log("NO ERROR")
+    
 
   }
   return true;// change to just be velocity elemnt
 }
 function testT(element,model ){
   if (model.thetaEQ === ''){
-    console.log("NO ERRORbjkdfsbdfgkjsfdg")
+    
     if (Object.hasOwn(element, 'domElement')) {
       element.domElement.classList.remove('error');// change to just be theta elemnt
-      console.log("NO ERROR")
+      
     } else{
       element.classList.remove('error');
-      console.log("NO ERROR")
+      
   
     }
     return true;
@@ -88,11 +88,11 @@ function testT(element,model ){
     
 
   } catch (err){
-    console.log(err)
+   
     // element.innerHTML="[BAD OR NO EQUATION INPUTED]";
     // element.text = "[BAD OR NO EQUATION INPUTED]";
     if (Object.hasOwn(element, 'domElement')){
-      console.log("ERROR")// change to just be theta elemnt
+      
       element.domElement.classList.add('error');
     } else{
       element.classList.add('error');
@@ -102,13 +102,13 @@ function testT(element,model ){
     return false;
   }
   if (Object.hasOwn(element, 'domElement')) {
-    console.log("NO ERRORbjkdfsbdfgkjsfdg")
+   
     element.domElement.classList.remove('error');// change to just be theta elemnt
-    console.log("NO ERROR")
+    
   } else{
-    console.log("NO ERRORbjkdfsbdfgkjsfdg2")
+    
     element.classList.remove('error');
-    console.log("NO ERROR")
+   
 
   }
   return true;

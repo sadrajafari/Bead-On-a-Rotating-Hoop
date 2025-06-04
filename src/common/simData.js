@@ -10,7 +10,7 @@ export class simData {
 
     getTheta(time){
         let dataIndex = (time/this.interval).toFixed(0);
-        //console.log(dataIndex)
+        
         
             if (dataIndex > this.data.length-1) {
             dataIndex = this.data.length-1;

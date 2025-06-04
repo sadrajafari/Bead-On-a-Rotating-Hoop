@@ -24,9 +24,6 @@ export default async function post (name, action, radius, gravity, friction, ang
             'Content-Type': 'application/json'
         }
     }).then(res => res.json())
-        .catch(error => console.error('Error'))
-        // .catch(error => console.error('Error', error))
-        .then(response => console.log('Success'));
-        // .then(response => console.log('Success:', response));
+     
 
 }

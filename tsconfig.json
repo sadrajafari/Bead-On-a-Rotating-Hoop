@@ -6,7 +6,9 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "strict": true
+    "strict": false,
+    "noImplicitAny": false,      // allow implicit any types
+    
   },
   "include": ["src"]
 }

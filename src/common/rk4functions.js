@@ -2,7 +2,7 @@
 // import * as evaluatex from './bundle2.js'
 // globalThis.window.evaluatex = evaluatex;
 export function updateVals(dt, velocity, angle, omega, radius, g, k, equations, useEval){
-    //console.log(omega)
+ 
       const N = 2;
       let r = radius;
       let i;
@@ -33,12 +33,12 @@ export function updateVals(dt, velocity, angle, omega, radius, g, k, equations, 
       let y = [angle,velocity];
       let ynew = [angle,velocity];
       // let graphVals = new simData(dt);
-    //console.log(t + "<" + graphLen)
+   
     while(t<graphLen){
         graphVals.insert(t,ynew[0],ynew[1]);
-        //console.log(graphVals.data.length + "" + t + "<" + graphLen)
+    
         
-        //console.log([t,y[0],y[1]]);
+       
         ynew = rk4(y,N,t,h,ynew,omega* Math.PI/180, r,g,k, equations, useEval);
         y[0] = ynew[0];
         y[1] = ynew[1];
@@ -51,9 +51,9 @@ export function updateVals(dt, velocity, angle, omega, radius, g, k, equations, 
         }
         
 
-    //console.log(y[0]);
+    
         t = t + h;
-        //console.log(ynew);
+        
         
     }
     
@@ -65,7 +65,7 @@ export function updateVals(dt, velocity, angle, omega, radius, g, k, equations, 
       
       dydt[0]= equations.thetadot({v:y[1],t:y[0]});
       } catch (err){
-        // console.log(err);
+        
         // document.getElementById("error-output").innerHTML="[BAD OR NO EQUATION INPUTED]";
       }
     
@@ -81,7 +81,7 @@ export function updateVals(dt, velocity, angle, omega, radius, g, k, equations, 
   }
 
   function derivs(t,y,dydt,omega,r,g,k){
-    //console.log(`${y} - ${dydt} - ${omega} - ${r} - ${g} - ${k}`);
+   
       dydt[0] = y[1]/r;
       dydt[1] = r*Math.sin(y[0])*(Math.pow(omega, 2)*Math.cos(y[0])-g/r)-k*y[1];
 
@@ -127,6 +127,6 @@ export function updateVals(dt, velocity, angle, omega, radius, g, k, equations, 
               ynew[index] = ynew[index].toFixed(4);
           }
       }
-      //console.log(dydx);
+     
       return ynew;
   }

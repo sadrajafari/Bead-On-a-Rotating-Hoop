@@ -1,8 +1,8 @@
 import { ScreenView, ScreenViewOptions } from "scenerystack/sim";
 import { SimModel } from "../model/SimModel.js";
 import { ResetAllButton } from "scenerystack/scenery-phet";
-import { Rectangle, Color, HBox, RichText, VBox, Text } from "scenerystack/scenery";
-import { HSlider, Range, Panel, RectangularToggleButton, Property, DerivedProperty, RoundToggleButton, Vector2, Node, Display, DOM } from "scenerystack";
+import { Rectangle, Color, HBox, RichText, VBox, Text, Circle } from "scenerystack/scenery";
+import { HSlider, Range, Panel, RectangularToggleButton, Property, DerivedProperty, RoundToggleButton, Vector2, Node, Display, DOM, CarouselComboBox } from "scenerystack";
 import ThreeIsometricNode from '../../../../mobius/js/ThreeIsometricNode.ts';
 import { drawTheta, drawVelocity } from '../../common/makeGraphs.js';
 import { verifyEq } from '../../common/verifyEq.js';
@@ -22,7 +22,7 @@ export class SimScreenView extends ScreenView {
   private readonly ball!: THREE.Mesh;
   private readonly ballTest!: THREE.Mesh;
   private omega: Property<number>;
-  private model: BeadOnHoopModel;
+  private model: SimModel;
   private refThetaGraph!: any;
   private testThetaGraph!: any;
   private refVelocityGraph!: any;
@@ -45,34 +45,54 @@ export class SimScreenView extends ScreenView {
   private project: boolean;
   private projectTemp: boolean;
   private graphSize: number;
-  private box: BoxGeometry;
+  private box: THREE.BoxGeometry;
   // private focusedSlider: number;
   private changing: any;
-  testGroup: Group;
-  testGroupTotal: Group;
-  new_div: Group;
+  testGroup: THREE.Group;
+  testGroupTotal: THREE.Group;
+  new_div: THREE.Group;
   referenceGroup: any;
   helperNode: any;
-  beadOnCharts: boolean;
+  beadOnCharts: boolean = false;
   showBead: boolean;
   domNode: any;
-  x: number;
-  y: number
+  // x: number;
+  // y: number
+  selectedRunProperty: Property<string>;
+  runHistory: {
+    theta: any;
+    velocity: any;
+    r: number;
+    g: number;
+    k: number;
+    omega: number;
+    omegaRad: number;
+    vdotLatex: string;
+    thetadotLatex: string;
+    vEQ: string;
+    thetaEQ: string;
+    // Add other properties as needed
+  }[];
+  updateComboBox: (runs: string[] | { name: string; index: number; }[]) => void;
+  vdotLatex: string;
+  thetadotLatex: string;
+  velocityField: any;
+  thetaField: any;
 
   public constructor(model: SimModel, options?: ScreenViewOptions) {
     super(options);
 
-
+    // this.layoutBounds.maxX = 1050;
     // Create a full-screen node
     // this.layoutBounds.maxX = window.innerWidth;
     // this.layoutBounds.maxY = window.innerHeight;
-    window.addEventListener('resize', () => {
-      this.x = window.innerWidth
-      this.y = window.innerHeight
-      // this.layoutBounds.maxX = window.innerWidth;
-      // this.layoutBounds.maxY = window.innerHeight;
-      // console.log(this.layoutBounds.maxX)
-    })
+    // window.addEventListener('resize', () => {
+    //   this.x = window.innerWidth
+    //   this.y = window.innerHeight
+    //   // this.layoutBounds.maxX = window.innerWidth;
+    //   // this.layoutBounds.maxY = window.innerHeight;
+
+    // })
     const handleWheel = function (e: { ctrlKey: any; metaKey: any; preventDefault: () => void; }) {
       if (e.ctrlKey || e.metaKey)
         e.preventDefault();
@@ -84,6 +104,7 @@ export class SimScreenView extends ScreenView {
     let currentheight = window.innerHeight;
     let speedRatio = model.simSpeedProp.value;
     this.beadOnCharts = model.velocityEQ && model.thetaEQ ? true : false
+
 
     post(model.name, "start", model.radius, model.gravity, model.friction, model.omega, model.thetaProp.value, model.velocityProp.value, model.velocityEQ, model.thetaEQ, model.id)
 
@@ -137,6 +158,7 @@ export class SimScreenView extends ScreenView {
         this.showBead = false;
         this.beadOnCharts = false;
 
+
       }
       // pause.set(false);
       // resume.set(false)
@@ -150,7 +172,7 @@ export class SimScreenView extends ScreenView {
 
     this.showBead = model.velocityEQ && model.thetaEQ ? true : false;
 
-    var toggleRadius = 11;
+    const toggleRadius = 11;
     let spacePressed = false;
     const pauseButton = new RectangularToggleButton(pause, false, true, { minWidth: 140, maxHeight: 20, content: new RichText('▐▐'), baseColor: "#f44949" })
     const ResumeButton = new RectangularToggleButton(resume, false, true, { minWidth: 140, maxHeight: 20, content: new RichText('▶'), baseColor: "#41b3d5" })
@@ -213,7 +235,8 @@ export class SimScreenView extends ScreenView {
 
     // graphsize may be deleted
     // this.graphSize = window.innerWidth / 4;
-    this.graphSize = this.layoutBounds.maxX / 3.8
+    // this.graphSize = this.layoutBounds.maxX / 3.8
+    this.graphSize = this.layoutBounds.maxX / 3.7
     this.model = model;
     this.omega = model.omegaProp
     this.rotation = 0;
@@ -223,7 +246,7 @@ export class SimScreenView extends ScreenView {
     document.body.appendChild(refThetaGraph);
     const testThetaGraph = document.createElement('div');
     document.body.appendChild(testThetaGraph);
-    let refVelocityGraph = document.createElement('div');
+    const refVelocityGraph = document.createElement('div');
     document.body.appendChild(refVelocityGraph);
     const testVelocityGraph = document.createElement('div');
     document.body.appendChild(testVelocityGraph);
@@ -252,10 +275,10 @@ export class SimScreenView extends ScreenView {
 
 
     refVelocityGraph.id = 'staticSim-velocity';
-    this.refVelocityGraph = drawVelocity(model.graphData, model.graphDataTest, model.graphLen, 'staticSim-velocity', 'reference', this.graphSize);
+    this.refVelocityGraph = drawVelocity(model.graphData, model.graphDataTest, model.graphLen, 'staticSim-velocity', 'reference', this.graphSize, this.beadOnCharts);
     // refVelocityGraph = drawVelocity(model.graphData, model.graphLen, 'staticSim-velocity', 'reference', this.graphSize);
     this.refVelocityGraph.style.transformOrigin = 'left top 0px';
-    console.log(this.refVelocityGraph.style)
+
     this.refVelocityGraph.offsetWidth = 250
     this.refVelocityGraph.offsetHeight = 250
     this.refVelocityGraph = new DOM(this.refVelocityGraph);
@@ -272,23 +295,12 @@ export class SimScreenView extends ScreenView {
     this.refVelocityGraph.centerBottom = new Vector2((window.innerWidth * 2.7) / 4, window.innerHeight / 2.2 - 20);
 
 
-    //HERE
-    // testVelocityGraph.id = 'variableSim-velocity';
-    // this.testVelocityGraph = drawVelocity(model.graphDataTest, model.graphData, model.graphLen, 'variableSim-velocity', 'test', this.graphSize, this.beadOnCharts);
-    // this.testVelocityGraph.offsetWidth = 250
-    // this.testVelocityGraph.offsetHeight = 250
-    // this.testVelocityGraph = new DOM(this.testVelocityGraph);
-
-
-    // this.addChild(this.testVelocityGraph);
-
-    // this.testVelocityGraph.centerBottom = new Vector2((window.innerWidth * 2.7) / 4, window.innerHeight * 1.8 / 2.2 - 20);
-    //HERE
+    
 
 
 
     refThetaGraph.id = 'staticSim-theta';
-    this.refThetaGraph = drawTheta(model.graphData, model.graphDataTest, model.graphLen, 'staticSim-theta', 'reference', this.graphSize);
+    this.refThetaGraph = drawTheta(model.graphData, model.graphDataTest, model.graphLen, 'staticSim-theta', 'reference', this.graphSize, this.beadOnCharts);
     this.refThetaGraph.offsetWidth = 250
     this.refThetaGraph.offsetHeight = 250
     this.refThetaGraph = new DOM(this.refThetaGraph);
@@ -300,17 +312,7 @@ export class SimScreenView extends ScreenView {
     this.refThetaGraph.centerBottom = new Vector2(this.refVelocityGraph.leftBottom.x + this.graphSize * 1.45, window.innerHeight / 2.2 - 20);
 
 
-    // HERE
-    // testThetaGraph.id = 'variableSim-theta';
-    // this.testThetaGraph = drawTheta(model.graphDataTest, model.graphData, model.graphLen, 'variableSim-theta', 'test', this.graphSize, this.beadOnCharts);
-    // this.testThetaGraph.offsetWidth = 250
-    // this.testThetaGraph.offsetHeight = 250
-    // this.testThetaGraph = new DOM(this.testThetaGraph);
-
-    // // this.rootNode.addChild(this.testThetaGraph);
-    // this.addChild(this.testThetaGraph);
-    // this.testThetaGraph.centerBottom = new Vector2(this.testVelocityGraph.leftBottom.x + this.graphSize * 1.45, window.innerHeight * 1.8 / 2.2 - 20);
-    // HERE
+  
 
 
 
@@ -330,7 +332,7 @@ export class SimScreenView extends ScreenView {
 
 
     // let toggleRadius = 13;
-    const exText = new Text("radius", { fontSize: fontSize, textAlign: false });
+    const exText = new Text("radius", { fontSize: fontSize });
     const exRichText = new RichText('✎');
     const simSpeedSlider = new HSlider(model.simSpeedProp, new Range(0.000, Number(0.5)));
 
@@ -470,8 +472,10 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.radiusProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new Text(new DerivedProperty([model.radiusProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new Text(" m", { fontSize: fontSize, textAlign: 'left' })
+            new Text(new DerivedProperty([model.radiusProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize }),
+            new Rectangle(0, 0, 10, 0),
+            
+            new Text(" m", { fontSize: fontSize })
           ]
         }),
         new Rectangle(0, 0, 0, simSpeedSlider.height - exText.height + sliderGap.height),
@@ -479,8 +483,9 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.gravityProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new Text(new DerivedProperty([model.gravityProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new Text(" m/s²", { fontSize: fontSize, textAlign: 'left' }),
+            new Text(new DerivedProperty([model.gravityProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize }),
+            new Rectangle(0, 0, 10, 0),
+            new Text(" m/s²", { fontSize: fontSize }),
 
           ]
         }),
@@ -489,8 +494,9 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.frictionProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new Text(new DerivedProperty([model.frictionProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new Text(" 1/s", { fontSize: fontSize, textAlign: 'left' })
+            new Text(new DerivedProperty([model.frictionProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize }),
+            new Rectangle(0, 0, 10, 0),
+            new Text(" 1/s", { fontSize: fontSize })
           ]
         }),
         new Rectangle(0, 0, 0, simSpeedSlider.height - exText.height + sliderGap.height),
@@ -498,8 +504,9 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.omegaRadsProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new Text(new DerivedProperty([model.omegaRadsProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
-            new Text(" rad/s", { fontSize: fontSize, textAlign: 'left' })
+            new Text(new DerivedProperty([model.omegaRadsProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize }),
+            new Rectangle(0, 0, 10, 0),
+            new Text(" rad/s", { fontSize: fontSize })
           ]
         }),
         new Rectangle(0, 0, 0, simSpeedSlider.height - exText.height + sliderGap.height),
@@ -507,7 +514,8 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 10, 0),
             // new RichText(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new Text(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize }),
+            new Rectangle(0, 0, 10, 0),
             new Text(" °/s", { fontSize: fontSize })
           ]
         }),
@@ -521,7 +529,7 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 3, 0),
             // new RichText(new DerivedProperty([model.thetaProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new Text(new DerivedProperty([model.thetaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(new DerivedProperty([model.thetaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize }),
             new Text(" °", { fontSize: fontSize })
           ]
         }),
@@ -530,7 +538,7 @@ export class SimScreenView extends ScreenView {
           children: [
             new Rectangle(0, 0, 3, 0),
             // new RichText(new DerivedProperty([model.velocityProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new Text(new DerivedProperty([model.velocityProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize, textAlign: 'left' }),
+            new Text(new DerivedProperty([model.velocityProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize }),
             new Text(" m/s", { fontSize: fontSize })
           ]
         }),
@@ -598,6 +606,7 @@ export class SimScreenView extends ScreenView {
 
 
     );
+    this.velocityField = velocityField;
 
     const thetaField = new EquationInput(this.sceneNode, thetaDOM,
       {
@@ -613,6 +622,7 @@ export class SimScreenView extends ScreenView {
 
 
     );
+    this.thetaField = thetaField
 
 
 
@@ -708,16 +718,16 @@ export class SimScreenView extends ScreenView {
     this.projectTemp = this.project;
     const projectSwitch = new Property<boolean>(this.project);
     projectSwitch.lazyLink(() => { this.projectTemp = !this.projectTemp })
-    const simSpeedTitle = new Text("simSpeed", { fontSize: fontSize, textAlign: 'left' })
+    const simSpeedTitle = new Text("simSpeed", { fontSize: fontSize })
 
-    let speedRate = new Text(new DerivedProperty([model.simSpeedProp], (value) => { return String(Number(Math.abs(value)).toFixed(3)) }), { fontSize: fontSize, textAlign: 'left' })
+    let speedRate = new Text(new DerivedProperty([model.simSpeedProp], (value) => { return String(Number(Math.abs(value)).toFixed(3)) }), { fontSize: fontSize })
     window.addEventListener("keypress", (e) => {
       if (e.key == " ") {
-        speedRate = new Text(("d"), { fontSize: fontSize, textAlign: 'left' })
+        speedRate = new Text(("d"), { fontSize: fontSize })
 
       }
     })
-    const measuresign = new Text("x", { fontSize: fontSize, textAlign: 'left' })
+    const measuresign = new Text("x", { fontSize: fontSize })
     const visualBox = new VBox({
       align: 'center', children: [
         new HBox({
@@ -742,7 +752,14 @@ export class SimScreenView extends ScreenView {
     });
 
     const referenceLabel = new Text('Reference:', { fontSize: fontSize });
+    const redBall = new Circle(8, { fill: new Color(255, 0, 0) });
+    this.addChild(redBall);
+
+
+
     const testLabel = new Text('Test:', { fontSize: fontSize });
+    const blueBall = new Circle(8, { fill: new Color(0, 0, 255) });
+    this.addChild(blueBall);
 
     visualBox.leftTop = new Vector2(0, equationPanel.centerY + 10)
 
@@ -750,7 +767,8 @@ export class SimScreenView extends ScreenView {
 
 
 
-    referenceLabel.leftCenter = new Vector2(panelConstants.rightCenter.x + 10, 20);
+    referenceLabel.leftCenter = new Vector2(panelConstants.rightCenter.x + 140, 20);
+    redBall.leftCenter = new Vector2(panelConstants.rightCenter.x + 120, 20);
 
 
     const lineRect = new Rectangle(0, 0, this.layoutBounds.maxX / 3.5, 2, { fill: new Color("black") });
@@ -847,8 +865,10 @@ export class SimScreenView extends ScreenView {
 
 
     const geometryHoop = new THREE.TorusGeometry(1.5, .07, 16, 50, 2 * Math.PI);
+    // const geometryHoop = new THREE.TorusGeometry(1.5, .07, 64, 128, 2 * Math.PI);
     // const materialHoop = new THREE.MeshLambertMaterial({ color: 0x44aa88, lightMapIntensity: .5 });
-    const materialHoop = new THREE.MeshLambertMaterial({ color: "rgb(153, 153, 153)", lightMapIntensity: .5 });
+    // const materialHoop = new THREE.MeshLambertMaterial({ color: "rgb(153, 153, 153)", lightMapIntensity: .5 });
+    const materialHoop = new THREE.MeshLambertMaterial({ color: "rgb(156, 156, 156) ", lightMapIntensity: .5 });
 
     testGroup.position.set(5, 2, 0)
 
@@ -903,7 +923,7 @@ export class SimScreenView extends ScreenView {
       this.balls.push(new THREE.Mesh(new THREE.SphereGeometry(i / this.trailLen * .12 + .01, 5, 5), new THREE.MeshLambertMaterial({ color: 0xff0000, transparent: true, opacity: 0 + i / this.trailLen, lightMapIntensity: .5 })));
       this.ballsCords.push(999);
     }
-
+    // @ts-ignore
     this.balls.forEach((e: Object3D<Event>) => { refGroup.add(e); e.position.set(99, 0, 0) });
     this.prevCords = [];
     this.prevCords.length = this.trailLen;
@@ -926,6 +946,7 @@ export class SimScreenView extends ScreenView {
 
     setInterval(() => {
       if (update) {
+        // @ts-ignore
         this.ballsTest.forEach((e: Object3D<Event>) => { testGroup.add(e); e.position.set(99, 0, 0); e.visible = this.showBead ? true : false });
         this.ballTest.visible = this.showBead ? true : false
         update = false;
@@ -950,7 +971,8 @@ export class SimScreenView extends ScreenView {
 
     const geometryHoopTest = new THREE.TorusGeometry(1.5, .07, 16, 50, 2 * Math.PI);
     // const materialHoopTest = new THREE.MeshLambertMaterial({ color: 0x44aa88, lightMapIntensity: .5 });
-    const materialHoopTest = new THREE.MeshLambertMaterial({ color: "rgb(153, 153, 153) ", lightMapIntensity: .5 });
+    // const materialHoopTest = new THREE.MeshLambertMaterial({ color: "rgb(153, 153, 153) ", lightMapIntensity: .5 });
+    const materialHoopTest = new THREE.MeshLambertMaterial({ color: "rgb(173, 173, 173)", lightMapIntensity: .5 });
     this.hoopTest = new THREE.Mesh(geometryHoopTest, materialHoopTest);
     this.hoopTest.position.set(-5, -2.0, 0);
     testGroup.add(this.hoopTest)
@@ -961,6 +983,7 @@ export class SimScreenView extends ScreenView {
     const materialBallTest = new THREE.MeshLambertMaterial({ color: "blue", lightMapIntensity: .5 });
     this.ballTest = new THREE.Mesh(geometryBallTest, materialBallTest);
     this.ballTest.position.set(10, 10, 10);
+    
     this.showBead ? testGroup.add(this.ballTest) : null;
     this.ballTest.visible = this.showBead ? true : false
     const rootNodeClone = this.rootNode;
@@ -1010,7 +1033,7 @@ export class SimScreenView extends ScreenView {
         if (focusedEq[0][1].mathField.__controller.blurred) {
           post(model.name, "reset", model.radius, model.gravity, model.friction, model.omega, model.thetaProp.value, model.velocityProp.value, model.velocityEQ, model.thetaEQ, model.id)
           reset()
-          console.log("reset345345345")
+
         }
       }
 
@@ -1030,8 +1053,7 @@ export class SimScreenView extends ScreenView {
           mousedown: function (event: { target: { _id: any; }; }) {
 
 
-            console.log("mousedown flkjjhdsfkjlsdajklsljkdsfdjkdshf")
-            console.log(event.target._id)
+
 
             changing = true
             changingWithId[0] = true;
@@ -1131,7 +1153,9 @@ export class SimScreenView extends ScreenView {
       resizeListener();
     });
     resizeListener();
-    domNode2.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, testLabel.rightCenter.y);
+    // domNode2.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, testLabel.rightCenter.y);
+    domNode2.leftTop = new Vector2(referenceLabel.rightCenter.x + 100, testLabel.rightCenter.y);
+
     const resizeListener2 = () => {
 
       // camera2.aspect = window.innerWidth / window.innerHeight
@@ -1144,15 +1168,19 @@ export class SimScreenView extends ScreenView {
       resizeListener2();
     });
     resizeListener2();
-    this.refVelocityGraph.leftTop = new Vector2(this.domNode.rightTop.x - 40, 30)
-    this.refThetaGraph.leftTop = new Vector2(this.domNode.rightTop.x + this.graphSize - 50, 30)
+    // this.refVelocityGraph.leftTop = new Vector2(this.domNode.rightTop.x - 40, 30)
+    this.refVelocityGraph.leftTop = new Vector2(this.domNode.rightTop.x + 10, 20)
+    // this.refThetaGraph.leftTop = new Vector2(this.domNode.rightTop.x + this.graphSize - 50, 30)
+    this.refThetaGraph.leftTop = new Vector2(this.refVelocityGraph.leftTop.x, 300)
     // HERE
     // this.testVelocityGraph.leftTop = new Vector2(this.refVelocityGraph.leftBottom.x, this.refVelocityGraph.leftBottom.y + 10)
     // this.testThetaGraph.leftTop = new Vector2(this.refThetaGraph.leftBottom.x - 10, this.refThetaGraph.leftBottom.y + 10)
-    this.domNode.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, referenceLabel.leftBottom.y);
-    lineRect.leftCenter = new Vector2(this.domNode.leftBottom.x, this.domNode.leftBottom.y + 70)
-    testLabel.leftTop = new Vector2(panelConstants.rightCenter.x + 10, this.domNode.leftBottom.y + 80)
-    domNode2.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, testLabel.rightCenter.y);
+    // this.domNode.leftTop = new Vector2(referenceLabel.rightCenter.x - referenceLabel.width, referenceLabel.leftBottom.y);
+    this.domNode.leftTop = new Vector2(referenceLabel.rightCenter.x - 80, referenceLabel.leftBottom.y);
+    lineRect.leftCenter = new Vector2(this.domNode.leftBottom.x - 30, this.domNode.leftBottom.y + 70)
+    testLabel.leftTop = new Vector2(panelConstants.rightCenter.x + 140, this.domNode.leftBottom.y + 80)
+    blueBall.leftTop = new Vector2(panelConstants.rightCenter.x + 120, this.domNode.leftBottom.y + 83);
+    domNode2.leftTop = new Vector2(referenceLabel.rightCenter.x - 80, testLabel.rightCenter.y + 20);
 
 
 
@@ -1165,7 +1193,93 @@ export class SimScreenView extends ScreenView {
 
 
 
+    this.selectedRunProperty = new Property('History'); // This will persist even after rebuilding
 
+    const listParent = new Node(); // Parent for the combo box
+    let currentComboBox: Node | null = null; // To keep track of the current combo box
+    this.runHistory = []; // Initialize run history
+    function updateComboBox(this: SimScreenView, runs: Array<{ name: string; index: number }> | string[]) {
+      if (currentComboBox) {
+        listParent.removeChild(currentComboBox);
+        currentComboBox.dispose();
+      }
+
+      // Support both array of objects and array of strings for runs
+      const items = [
+        {
+          value: 'History',
+          createNode: () => new Text('History'),
+          accessibleName: 'History run'
+        },
+        ...(Array.isArray(runs) && typeof runs[0] === 'object'
+          ? (runs as Array<{ name: string; index: number }>).map(run => ({
+            value: `Run ${run.index + 1}`,
+            createNode: () => new Text(`Run ${run.index + 1}`),
+            accessibleName: `Run ${run.index + 1}`
+          }))
+          : (runs as string[]).map((run, idx) => ({
+            value: run,
+            createNode: () => new Text(run),
+            accessibleName: run
+          }))
+        )
+      ];
+
+
+      currentComboBox = new CarouselComboBox<string>(
+        this.selectedRunProperty,
+        items,
+        {
+          scale: 1.5
+        }
+
+      );
+
+
+      listParent.addChild(currentComboBox);
+
+    }
+
+
+    this.addChild(listParent);
+    this.updateComboBox = updateComboBox.bind(this);
+    this.updateComboBox([]);
+
+
+    this.selectedRunProperty.link(selected => {
+      if (selected.startsWith('Run ')) {
+        const index = parseInt(selected.replace('Run ', '')) - 1;
+        const run = this.runHistory[index];
+        if (run) {
+          this.model.radiusProp.value = run.r;
+          this.model.gravityProp.value = run.g;
+          this.model.frictionProp.value = run.k;
+          this.model.omegaProp.value = run.omega;
+          this.model.omegaRadsProp.value = run.omegaRad;
+          this.model.velocityProp.value = run.velocity;
+          this.model.thetaProp.value = run.theta;
+
+
+          this.vdotLatex = run.vdotLatex;
+          this.thetadotLatex = run.thetadotLatex;
+
+
+          this.model.velocityEQ = run.vEQ;
+          this.model.thetaEQ = run.thetaEQ;
+
+
+          // this.restoreRun();  // Add this method next
+          // this.restoringRun = true;
+          this.restoreRun()
+          // this.reset();  // Add this method next
+
+        }
+      }
+    });
+
+    listParent.leftTop = new Vector2(panelConstants.rightCenter.x + 10, panelConstants.leftTop.y + 10);
+
+    reset()
 
 
 
@@ -1177,7 +1291,142 @@ export class SimScreenView extends ScreenView {
 
   }
 
+
+
+
+
+
+  public restoreRun(): void {
+    // Reset simulation without saving to history
+    // this.pause = true
+
+    this.model.radius = this.model.radiusProp.value;
+    this.model.gravity = this.model.gravityProp.value;
+    this.model.friction = this.model.frictionProp.value;
+    this.model.omega = this.model.omegaProp.value;
+    //@ts-ignore
+    this.model.omegaRads = this.model.omegaRadsProp.value;
+    this.velocityField.updateText(this.vdotLatex);
+    this.thetaField.updateText(this.thetadotLatex);
+
+    if (this.model.thetaEQ != "" && this.model.velocityEQ != "") {
+      this.showBead = true;
+      this.beadOnCharts = this.model.velocityEQ && this.model.thetaEQ ? true : false
+
+
+
+    }
+    if (this.model.thetaEQ.length == 0 || this.model.velocityEQ.length === 0 || this.model.velocityEQ === "" || this.model.thetaEQ === "") {
+      this.showBead = false;
+      this.beadOnCharts = false;
+
+    }
+
+    this.model.reset();
+
+
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   public reset(): void {
+
+
+
+    // this.xEQLatex = this.vdotxInput.mathField.latex();
+    // this.yEQLatex = this.xdotInput.mathField.latex();
+    this.vdotLatex = this.velocityField.mathField.latex();
+    this.thetadotLatex = this.thetaField.mathField.latex();
+
+
+    // this.pause = false
+
+    const currentSettings = {
+      r: this.model.radiusProp.value,
+      g: this.model.gravityProp.value,
+      k: this.model.frictionProp.value,
+      omega: this.model.omegaProp.value,
+      omegaRad: this.model.omegaRadsProp.value,
+      velocity: this.model.velocityProp.value,
+      theta: this.model.thetaProp.value,
+
+
+
+
+      vdotLatex: this.vdotLatex,
+      thetadotLatex: this.thetadotLatex,
+
+      // @ts-ignore
+      vdotEQ: this.model.vdotEQ,
+      thetaEQ: this.model.thetaEQ,
+
+    };
+
+
+    // Check if settings are different from last run
+    const lastRun = this.runHistory[this.runHistory.length - 1];
+    const isDifferent = !lastRun || Object.keys(currentSettings).some(key =>
+      // @ts-ignore
+      lastRun[key as keyof typeof currentSettings] !== currentSettings[key as keyof typeof currentSettings]
+    );
+
+    // Only add to history if settings are different
+    if (isDifferent) {
+      // @ts-ignore
+      this.runHistory.push(currentSettings);
+
+      // Update ComboBox with new history
+
+      this.updateComboBox(this.runHistory.map((_, index: number) => ({
+        name: `Run ${index + 1}`,
+        index
+      })));
+
+      // Update selected run to newest
+
+
+      const currentRunNumber = this.runHistory.length;
+      this.selectedRunProperty.value = `Run ${currentRunNumber}`;
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Called when the user presses the reset-all button
     if (this.model !== undefined) {
       if (this.model.validEqs) {
@@ -1197,11 +1446,22 @@ export class SimScreenView extends ScreenView {
 
       }
     }
+    if (this.model.velocityEQ !== null && this.model.thetaEQ !== null) {
+      this.beadOnCharts = true;
+    } else {
+      this.beadOnCharts = false;
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public step(dt: number): void {
 
+
+    if (this.model.velocityEQ !== null && this.model.thetaEQ !== null) {
+      this.beadOnCharts = true;
+    } else {
+      this.beadOnCharts = false;
+    }
     if (!this.model.paused) {
 
 
@@ -1218,14 +1478,14 @@ export class SimScreenView extends ScreenView {
         this.ballsCords.push(this.model.angle);
         this.ballsCords.shift();
       }
-      let xyz = { x: cords[0] * Math.cos(this.model.rotation) - 5, y: cords[1] + 1.5, z: -cords[0] * Math.sin(this.model.rotation) };
+      const xyz = { x: cords[0] * Math.cos(this.model.rotation) - 5, y: cords[1] + 1.5, z: -cords[0] * Math.sin(this.model.rotation) };
       // ball.position.set(xyz.x,xyz.y,xyz.z);
       this.prevCords.push([xyz.x, xyz.y, xyz.z]);
       this.prevCords.shift();
       for (let i = 0; i < this.trailLen; i++) {
         if (this.prevCords[i] != 999) {
           if (this.project) {
-            let tempCord = this.getBallPos(this.ballsCords[i] + 3 * Math.PI / 2, 1.5);
+            const tempCord = this.getBallPos(this.ballsCords[i] + 3 * Math.PI / 2, 1.5);
             this.balls[i].position.set(tempCord[0] * Math.cos(this.model.rotation) - 5, tempCord[1] + 1.5, -tempCord[0] * Math.sin(this.model.rotation))
           } else {
             this.balls[i].position.set(this.prevCords[i][0], this.prevCords[i][1], this.prevCords[i][2])
@@ -1237,14 +1497,14 @@ export class SimScreenView extends ScreenView {
         this.ballsCordsTest.push(this.model.angleTest);
         this.ballsCordsTest.shift();
       }
-      let xyzTest = { x: cordsTest[0] * Math.cos(this.model.rotation) - 5, y: cordsTest[1] - 2, z: -cordsTest[0] * Math.sin(this.model.rotation) };
+      const xyzTest = { x: cordsTest[0] * Math.cos(this.model.rotation) - 5, y: cordsTest[1] - 2, z: -cordsTest[0] * Math.sin(this.model.rotation) };
       // ball.position.set(xyz.x,xyz.y,xyz.z);
       this.prevCordsTest.push([xyzTest.x, xyzTest.y, xyzTest.z]);
       this.prevCordsTest.shift();
       for (let i = 0; i < this.trailLen; i++) {
         if (this.prevCordsTest[i] != 999) {
           if (this.project) {
-            let tempCord = this.getBallPos(this.ballsCordsTest[i] + 3 * Math.PI / 2, 1.5);
+            const tempCord = this.getBallPos(this.ballsCordsTest[i] + 3 * Math.PI / 2, 1.5);
             this.ballsTest[i].position.set(tempCord[0] * Math.cos(this.model.rotation) - 5, tempCord[1] - 2, -tempCord[0] * Math.sin(this.model.rotation))
           } else {
             this.ballsTest[i].position.set(this.prevCordsTest[i][0], this.prevCordsTest[i][1], this.prevCordsTest[i][2])
@@ -1255,30 +1515,43 @@ export class SimScreenView extends ScreenView {
       const margin = { top: this.graphSize / 35, right: 30, bottom: this.graphSize / (35 / 3), left: 60 };
       const width = this.graphSize - margin.left - margin.right;
       const height = this.graphSize - margin.top - margin.bottom;
-
+      // @ts-ignore
       const xRef = d3.scaleLinear()
         .domain([0, this.model.graphLen])
         .range([margin.left, width + margin.left]);
+      // @ts-ignore
       const xTest = d3.scaleLinear()
         .domain([0, this.model.graphLen])
         .range([margin.left, width + margin.left]);
-      const minYTref = d3.min(this.model.graphData.data, (d: { theta: any; }) => d.theta)
+        // @ts-ignore
+      const minYTref = d3.min(this.model.graphData.data, (d: { theta: unknown; }) => d.theta)
+      // @ts-ignore
       const maxYTref = d3.max(this.model.graphData.data, (d: { theta: any; }) => d.theta)
+      // @ts-ignore
       const minYTtest = d3.min(this.model.graphDataTest.data, (d: { theta: any; }) => d.theta)
+      // @ts-ignore
       const maxYTtest = d3.max(this.model.graphDataTest.data, (d: { theta: any; }) => d.theta)
+      // @ts-ignore
       const minYVref = d3.min(this.model.graphData.data, (d: { velocity: any; }) => d.velocity)
+      // @ts-ignore
       const maxYVref = d3.max(this.model.graphData.data, (d: { velocity: any; }) => d.velocity)
+      // @ts-ignore
       const minYVtest = d3.min(this.model.graphDataTest.data, (d: { velocity: any; }) => d.velocity)
+      // @ts-ignore
       const maxYVtest = d3.max(this.model.graphDataTest.data, (d: { velocity: any; }) => d.velocity)
+      // @ts-ignore
       const yRef = d3.scaleLinear()
         .domain([maxYTref, minYTref])
         .range([margin.bottom, height - margin.bottom]);
+        // @ts-ignore
       const yTest = d3.scaleLinear()
         .domain([maxYTtest, minYTtest])
         .range([margin.bottom, height - margin.bottom]);
+        // @ts-ignore
       const yVref = d3.scaleLinear()
         .domain([maxYVref, minYVref])
         .range([margin.bottom, height - margin.bottom]);
+        // @ts-ignore
       const yVtest = d3.scaleLinear()
         .domain([maxYVtest, minYVtest])
         .range([margin.bottom, height - margin.bottom]);
@@ -1295,17 +1568,23 @@ export class SimScreenView extends ScreenView {
       // this.testVelocityGraph.element.children[6].setAttribute('cy', yVtest(this.model.velocityTest));
       // Update theta dots
       const thetaSvg = this.refThetaGraph.element;
+      // @ts-ignore
       const xTheta = d3.scaleLinear()
         .domain([0, this.model.graphLen])
         .range([margin.left, width + margin.left]);
+        // @ts-ignore
       const yTheta = d3.scaleLinear()
         .domain([
           Math.min(
+            // @ts-ignore
             d3.min(this.model.graphData.data, (d: any) => d.theta * 180 / Math.PI),
+            // @ts-ignore
             d3.min(this.model.graphDataTest.data, (d: any) => d.theta * 180 / Math.PI)
           ),
           Math.max(
+            // @ts-ignore
             d3.max(this.model.graphData.data, (d: any) => d.theta * 180 / Math.PI),
+            // @ts-ignore
             d3.max(this.model.graphDataTest.data, (d: any) => d.theta * 180 / Math.PI)
           )
         ])
@@ -1318,17 +1597,23 @@ export class SimScreenView extends ScreenView {
 
       // Update velocity dots
       const velocitySvg = this.refVelocityGraph.element;
+      // @ts-ignore
       const xVel = d3.scaleLinear()
         .domain([0, this.model.graphLen])
         .range([margin.left, width + margin.left]);
+        // @ts-ignore
       const yVel = d3.scaleLinear()
         .domain([
           Math.min(
+            // @ts-ignore
             d3.min(this.model.graphData.data, (d: any) => d.velocity),
+            // @ts-ignore
             d3.min(this.model.graphDataTest.data, (d: any) => d.velocity)
           ),
           Math.max(
+            // @ts-ignore
             d3.max(this.model.graphData.data, (d: any) => d.velocity),
+            // @ts-ignore
             d3.max(this.model.graphDataTest.data, (d: any) => d.velocity)
           )
         ])
@@ -1339,27 +1624,7 @@ export class SimScreenView extends ScreenView {
       velocitySvg.querySelector("#dot-test-velocity")?.setAttribute("cx", xVel(this.model.timer));
       velocitySvg.querySelector("#dot-test-velocity")?.setAttribute("cy", yVel(this.model.velocityTest));
 
-      // const velocitySvg = this.refVelocityGraph.element;
-      // const xVel = d3.scaleLinear()
-      //   .domain([0, this.model.graphLen])
-      //   .range([margin.left, width + margin.left]);
-      // const yVel = d3.scaleLinear()
-      //   .domain([
-      //     Math.min(
-      //       d3.min(this.model.graphData.data, (d: any) => d.velocity),
-      //       d3.min(this.model.graphDataTest.data, (d: any) => d.velocity)
-      //     ),
-      //     Math.max(
-      //       d3.max(this.model.graphData.data, (d: any) => d.velocity),
-      //       d3.max(this.model.graphDataTest.data, (d: any) => d.velocity)
-      //     )
-      //   ])
-      //   .range([height - margin.bottom, margin.bottom]);
 
-      // velocitySvg.querySelector("#dot-ref-velocity")?.setAttribute("cx", xVel(this.model.timer));
-      // velocitySvg.querySelector("#dot-ref-velocity")?.setAttribute("cy", yVel(this.model.velocity));
-      // velocitySvg.querySelector("#dot-test-velocity")?.setAttribute("cx", xVel(this.model.timer));
-      // velocitySvg.querySelector("#dot-test-velocity")?.setAttribute("cy", yVel(this.model.velocityTest));
 
       if (this.model.updateGraphs) {
 
@@ -1371,7 +1636,7 @@ export class SimScreenView extends ScreenView {
         this.refVelocityGraph.detach()
 
 
-        this.refVelocityGraph = drawVelocity(this.model.graphData, this.model.graphDataTest, this.model.graphLen, 'staticSim-velocity', 'reference', this.graphSize);
+        this.refVelocityGraph = drawVelocity(this.model.graphData, this.model.graphDataTest, this.model.graphLen, 'staticSim-velocity', 'reference', this.graphSize, this.showBead ? true : false);
         this.refVelocityGraph.offsetWidth = 250
         this.refVelocityGraph.offsetHeight = 250
         this.refVelocityGraph = new DOM(this.refVelocityGraph);
@@ -1385,7 +1650,7 @@ export class SimScreenView extends ScreenView {
         this.addChild(this.refVelocityGraph);
 
         this.refThetaGraph.detach()
-        this.refThetaGraph = drawTheta(this.model.graphData, this.model.graphDataTest, this.model.graphLen, 'staticSim-theta', 'reference', this.graphSize);
+        this.refThetaGraph = drawTheta(this.model.graphData, this.model.graphDataTest, this.model.graphLen, 'staticSim-theta', 'reference', this.graphSize, this.showBead ? true : false);
         this.refThetaGraph.offsetWidth = 250
         this.refThetaGraph.offsetHeight = 250
         this.refThetaGraph = new DOM(this.refThetaGraph);
@@ -1395,34 +1660,10 @@ export class SimScreenView extends ScreenView {
         this.addChild(this.refThetaGraph);
 
 
-        // HERE
-        // this.testVelocityGraph.detach()
-        // this.testVelocityGraph = drawVelocity(this.model.graphDataTest, this.model.graphData, this.model.graphLen, 'variableSim-velocity', 'test', this.graphSize, this.beadOnCharts);
-        // this.testVelocityGraph.offsetWidth = 250
-        // this.testVelocityGraph.offsetHeight = 250
-        // this.testVelocityGraph = new DOM(this.testVelocityGraph);
-        // // this.testVelocityGraph = new DOM(drawVelocity(this.model.graphDataTest, this.model.graphLen, 'staticSim-velocity', 'test', this.graphSize, this.beadOnCharts));
-        // this.testVelocityGraph._container.style.transformOrigin = 'left top 0px';
-        // this.addChild(this.testVelocityGraph);
 
+        this.refVelocityGraph.leftTop = new Vector2(this.domNode.rightTop.x + 10, 20)
+        this.refThetaGraph.leftTop = new Vector2(this.refVelocityGraph.leftTop.x, 300)
 
-        // this.testThetaGraph.detach()
-        // this.testThetaGraph = drawTheta(this.model.graphDataTest, this.model.graphData, this.model.graphLen, 'variableSim-theta', 'test', this.graphSize, this.beadOnCharts);
-        // this.testThetaGraph.offsetWidth = 250
-        // this.testThetaGraph.offsetHeight = 250
-        // this.testThetaGraph = new DOM(this.testThetaGraph);
-        // // this.testThetaGraph = new DOM(drawTheta(this.model.graphDataTest, this.model.graphLen, 'variableSim-theta', 'test', this.graphSize, this.beadOnCharts));
-
-        // this.testThetaGraph._container.style.transformOrigin = 'left top 0px';
-        // this.addChild(this.testThetaGraph);
-        // HERE
-
-
-        this.refVelocityGraph.leftTop = new Vector2(this.domNode.rightTop.x - 40, 30)
-        this.refThetaGraph.leftTop = new Vector2(this.domNode.rightTop.x + this.graphSize - 50, 30)
-        // HERE
-        // this.testVelocityGraph.leftTop = new Vector2(this.refVelocityGraph.leftBottom.x, this.refVelocityGraph.leftBottom.y + 10)
-        // this.testThetaGraph.leftTop = new Vector2(this.refThetaGraph.leftBottom.x - 10, this.refThetaGraph.leftBottom.y + 10)
 
 
 
@@ -1433,8 +1674,8 @@ export class SimScreenView extends ScreenView {
 
   }
   getBallPos(angle: number, radius: number) {
-    let x = radius * Math.cos(angle);
-    let y = radius * Math.sin(angle);
+    const x = radius * Math.cos(angle);
+    const y = radius * Math.sin(angle);
     return [x, y];
   }
 }

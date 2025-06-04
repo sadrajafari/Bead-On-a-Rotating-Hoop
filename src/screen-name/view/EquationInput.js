@@ -49,9 +49,9 @@ export default class EquationInput extends Node {
       // const mathField = MathQuill.getInterface(2).MathField(domElement, {
       handlers: {
         edit: function () {
-          // console.log("balkjsdflajsdbfaklsjdf")
+       
           options.model[options.equation] = mathField.latex().replaceAll('\\theta', ' t').replaceAll('\\omega', ' o').replaceAll('\\pi', ' p').replaceAll('\\e', ' e')
-          // console.log(mathField.latex())
+        
           options.model.validEqs = options.verifyEq(options.thetaElement, options.velocityElement, options.model);
           //post here
           setTimeout(() => post(options.model.name, "changed " + options.equation, options.model.radiusProp.value, options.model.gravityProp.value, options.model.frictionProp.value, options.model.omegaProp.value, options.model.thetaProp.value, options.model.storeVel, options.model.velocityEQ, options.model.thetaEQ, options.model.id), 10)
@@ -61,9 +61,9 @@ export default class EquationInput extends Node {
 
       }
     });
-    // console.log("hereee",mathField)
+    
     this.mathField = mathField;
-    // console.log("mathfeild",this.mathField)
+
     mathField.write(options.initialText);
 
     const equationInputNode = new Node();
@@ -95,7 +95,13 @@ export default class EquationInput extends Node {
 
     this.domElement = domElement;
   }
-
+  updateText(newLatex) {
+    if (this.mathField) {
+      // Set the raw LaTeX for display only
+      this.mathField.latex(newLatex);
+      // Do NOT set this.property.value here!
+    }
+  }
 
   getElementValue() {
     return this.mathField.latex()

@@ -1,5 +1,6 @@
 
-export function drawTheta(globalData, testData, graphLen, divID, type, size, showBead = true) {
+export function drawTheta(globalData, testData, graphLen, divID, type, size, showBead) {
+
 
   // Declare the chart dimensions and margins.
   const margin = { top: size / 35, right: 30, bottom: size / (35 / 3), left: 60 };
@@ -57,7 +58,7 @@ export function drawTheta(globalData, testData, graphLen, divID, type, size, sho
     // .attr("stroke", "steelblue")
     .attr("stroke", type === "test" ? "blue" : "red")
     .attr("stroke-width", 1.5)
-    .attr("stroke-dasharray", type !== "test" ? "4,4" : "0")
+    // .attr("stroke-dasharray", type !== "test" ? "4,4" : "0")
     .attr("d", d3.line()
       .x(function (d) { return x(d.time) })
       .y(function (d) { return y(d.theta * 180 / Math.PI) })
@@ -115,13 +116,16 @@ export function drawTheta(globalData, testData, graphLen, divID, type, size, sho
     .attr("cx", x(0))
     .attr("cy", y(globalData.data[0].theta * 180 / Math.PI));
 
-  svg.append("circle")
-    .attr("id", "dot-test-theta")
-    .attr("r", 4)
-    .attr("fill", "blue")
-    .attr("stroke", "blue")
-    .attr("cx", x(0))
-    .attr("cy", y(testData.data[0].theta * 180 / Math.PI));
+  if (showBead) {
+    svg.append("circle")
+      .attr("id", "dot-test-theta")
+      .attr("r", 4)
+      .attr("fill", "blue")
+      .attr("stroke", "blue")
+      .attr("cx", x(0))
+      .attr("cy", y(testData.data[0].theta * 180 / Math.PI))
+
+  }
 
 
 
@@ -129,7 +133,7 @@ export function drawTheta(globalData, testData, graphLen, divID, type, size, sho
 
   return svg.node();
 }
-export function drawVelocity(globalData, testData, graphLen, divID, type, size, showBead = true) {
+export function drawVelocity(globalData, testData, graphLen, divID, type, size, showBead) {
 
   // Declare the chart dimensions and margins.
   const margin = { top: size / 35, right: 30, bottom: size / (35 / 3), left: 60 };
@@ -188,7 +192,7 @@ export function drawVelocity(globalData, testData, graphLen, divID, type, size, 
     // .attr("stroke", "steelblue")
     .attr("stroke", type === "test" ? "blue" : "red")
     .attr("stroke-width", 1.5)
-    .attr("stroke-dasharray", type !== "test" ? "4,4" : "0")
+    // .attr("stroke-dasharray", type !== "test" ? "4,4" : "0")
     .attr("d", d3.line()
       .x(function (d) { return x(d.time) })
       .y(function (d) { return y(d.velocity) })
@@ -240,13 +244,17 @@ export function drawVelocity(globalData, testData, graphLen, divID, type, size, 
     .attr("cx", x(0))
     .attr("cy", y(globalData.data[0].velocity));
 
-  svg.append("circle")
-    .attr("id", "dot-test-velocity")
-    .attr("r", 4)
-    .attr("fill", "blue")
-    .attr("stroke", "blue")
-    .attr("cx", x(0))
-    .attr("cy", y(testData.data[0].velocity));
+
+  if (showBead) {
+    svg.append("circle")
+      .attr("id", "dot-test-velocity")
+      .attr("r", 4)
+      .attr("fill", "blue")
+      .attr("stroke", "blue")
+      .attr("cx", x(0))
+      .attr("cy", y(testData.data[0].velocity));
+
+  }
 
 
   return svg.node();
