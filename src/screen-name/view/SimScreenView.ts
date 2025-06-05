@@ -659,7 +659,7 @@ export class SimScreenView extends ScreenView {
     // thetadot.innerHTML = '<span>θ&#x307;</span>=  ';
     thetadot.innerHTML = `<span style="position: relative; display: inline-block;">
     <span>θ</span>
-    <span style="position: absolute; top: -0.8em; left: 45%; transform: translateX(-50%);">.</span>
+    <span style="position: absolute; top: -0.8em; left: 50%; transform: translateX(-50%);">.</span>
     </span>=  `;
     thetadot.style.fontSize = `${fontSize + 5}px`
     const thetadotDOM = new DOM((thetadot));
