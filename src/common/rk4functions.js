@@ -1,132 +1,132 @@
 // import { simData } from './simData.js';
 // import * as evaluatex from './bundle2.js'
 // globalThis.window.evaluatex = evaluatex;
-export function updateVals(dt, velocity, angle, omega, radius, g, k, equations, useEval){
- 
-      const N = 2;
-      let r = radius;
-      let i;
-      let j;
-      let h = dt; //this will be delta T between animation
-      let t = 0.0;
-      let y = [angle,velocity];
-      let ynew = [];
-      ynew = rk4(y,N,t,h,ynew,omega, r,g, k, equations, useEval);
-      y[0] = ynew[0];
-      y[1] = ynew[1];
-      y[0] = y[0]%(2*Math.PI);
-      if (y[0] < 0){
-        y[0] = 2*Math.PI - Math.abs(y[0])
-      }
-      return y;
-    }
+export function updateVals(dt, velocity, angle, omega, radius, g, k, equations, useEval) {
 
-
- export function getGraphData(dt, velocity, angle, omega, radius, g, k, equations, useEval, graphLen, graphVals, time, wrap){
-    
-    const N = 2;
-      let r = radius;
-      let i;
-      let j;
-      let h = dt; 
-      let t = time;
-      let y = [angle,velocity];
-      let ynew = [angle,velocity];
-      // let graphVals = new simData(dt);
-   
-    while(t<graphLen){
-        graphVals.insert(t,ynew[0],ynew[1]);
-    
-        
-       
-        ynew = rk4(y,N,t,h,ynew,omega* Math.PI/180, r,g,k, equations, useEval);
-        y[0] = ynew[0];
-        y[1] = ynew[1];
-
-        if (wrap){
-          y[0] = y[0]%(2*Math.PI);
-          if (y[0] < 0){
-            y[0] = 2*Math.PI - Math.abs(y[0])
-          }
-        }
-        
-
-    
-        t = t + h;
-        
-        
-    }
-    
-    return graphVals;
+  const N = 2;
+  let r = radius;
+  let i;
+  let j;
+  let h = dt; //this will be delta T between animation
+  let t = 0.0;
+  let y = [angle, velocity];
+  let ynew = [];
+  ynew = rk4(y, N, t, h, ynew, omega, r, g, k, equations, useEval);
+  y[0] = ynew[0];
+  y[1] = ynew[1];
+  y[0] = y[0] % (2 * Math.PI);
+  if (y[0] < 0) {
+    y[0] = 2 * Math.PI - Math.abs(y[0])
+  }
+  return y;
 }
-  
-  function derivsEval(t,y,dydt,omega,r,g,k, equations){
-    try{
-      
-      dydt[0]= equations.thetadot({v:y[1],t:y[0]});
-      } catch (err){
-        
-        // document.getElementById("error-output").innerHTML="[BAD OR NO EQUATION INPUTED]";
+
+
+export function getGraphData(dt, velocity, angle, omega, radius, g, k, equations, useEval, graphLen, graphVals, time, wrap) {
+
+  const N = 2;
+  let r = radius;
+  let i;
+  let j;
+  let h = dt;
+  let t = time;
+  let y = [angle, velocity];
+  let ynew = [angle, velocity];
+  // let graphVals = new simData(dt);
+
+  while (t < graphLen) {
+    graphVals.insert(t, ynew[0], ynew[1]);
+
+
+
+    ynew = rk4(y, N, t, h, ynew, omega * Math.PI / 180, r, g, k, equations, useEval);
+    y[0] = ynew[0];
+    y[1] = ynew[1];
+
+    if (wrap) {
+      y[0] = y[0] % (2 * Math.PI);
+      if (y[0] < 0) {
+        y[0] = 2 * Math.PI - Math.abs(y[0])
       }
-    
-    try{
-      dydt[1]= equations.velocitydot({v:y[1],t:y[0]});
-    } catch(err){
-      // document.getElementById("error-output").innerHTML="[BAD OR NO EQUATION INPUTED]";
     }
-    
-  
 
-      return dydt;
+
+
+    t = t + h;
+
+
   }
 
-  function derivs(t,y,dydt,omega,r,g,k){
-   
-      dydt[0] = y[1]/r;
-      dydt[1] = r*Math.sin(y[0])*(Math.pow(omega, 2)*Math.cos(y[0])-g/r)-k*y[1];
+  return graphVals;
+}
+
+function derivsEval(t, y, dydt, omega, r, g, k, equations) {
+  try {
+
+    dydt[0] = equations.thetadot({ v: y[1], VariableForTheta: y[0] });
+  } catch (err) {
+
+    // document.getElementById("error-output").innerHTML="[BAD OR NO EQUATION INPUTED]";
+  }
+
+  try {
+    dydt[1] = equations.velocitydot({ v: y[1], VariableForTheta: y[0] });
+  } catch (err) {
+    // document.getElementById("error-output").innerHTML="[BAD OR NO EQUATION INPUTED]";
+  }
 
 
-      return dydt;
+
+  return dydt;
+}
+
+function derivs(t, y, dydt, omega, r, g, k) {
+
+  dydt[0] = y[1] / r;
+  dydt[1] = r * Math.sin(y[0]) * (Math.pow(omega, 2) * Math.cos(y[0]) - g / r) - k * y[1];
+
+
+  return dydt;
+}
+
+function rk4(y, N, x, h, ynew, omega, radius, g, k, equations, useEval) {
+  let h6;
+  let hh;
+  let xh;
+  let dym = [];
+  let dyt = [];
+  let yt = [];
+  let dydx = [];
+  let index;
+  hh = h * 0.5;
+  h6 = h / 6.0;
+  xh = x + hh;
+  dydx = useEval ? derivsEval(x, y, dydx, omega, radius, g, k, equations) : derivs(x, y, dydx, omega, radius, g, k);
+
+  for (index = 0; index <= N; index++) {
+    yt[index] = y[index] + hh * dydx[index];
   }
-  
-  function rk4(y,N,x,h,ynew,omega, radius,g,k, equations, useEval){
-      let h6;
-      let hh;
-      let xh;
-      let dym = [];
-      let dyt = [];
-      let yt = [];
-      let dydx = [];
-      let index;
-      hh = h*0.5;
-      h6 = h/6.0;
-      xh=x+hh;
-      dydx = useEval ?  derivsEval(x,y,dydx,omega, radius,g,k, equations) : derivs(x,y,dydx,omega, radius,g,k) ;
-      
-      for (index = 0; index <= N; index++){
-          yt[index] = y[index]+hh*dydx[index];
-      }
-      dyt = useEval ?  derivsEval(xh,yt,dyt,omega, radius,g,k, equations) : derivs(xh,yt,dyt,omega, radius,g,k) ;
-      
-      for (index = 0; index <= N; index++){
-          yt[index] = y[index]+hh*dyt[index];
-      }
-      dym = useEval ?  derivsEval(xh,yt,dym,omega, radius,g,k, equations) : derivs(xh,yt,dym,omega, radius,g,k);
-      
-      for (index = 0; index <= N; index++){
-          yt[index] = y[index]+h*dym[index];
-          dym[index] = dyt[index]+dym[index];
-      }
-      dyt = useEval ? derivsEval(x+h,yt,dyt,omega, radius,g,k, equations) : derivs(x+h,yt,dyt,omega, radius,g,k) ;
-      
-      for (index = 0; index <= N; index++){
-          ynew[index]=y[index]+h6*(dydx[index]+dyt[index]+2.0*dym[index]);
-      }
-      for (index = 0; index <= N; index++){
-          if (ynew[index] instanceof Number){
-              ynew[index] = ynew[index].toFixed(4);
-          }
-      }
-     
-      return ynew;
+  dyt = useEval ? derivsEval(xh, yt, dyt, omega, radius, g, k, equations) : derivs(xh, yt, dyt, omega, radius, g, k);
+
+  for (index = 0; index <= N; index++) {
+    yt[index] = y[index] + hh * dyt[index];
   }
+  dym = useEval ? derivsEval(xh, yt, dym, omega, radius, g, k, equations) : derivs(xh, yt, dym, omega, radius, g, k);
+
+  for (index = 0; index <= N; index++) {
+    yt[index] = y[index] + h * dym[index];
+    dym[index] = dyt[index] + dym[index];
+  }
+  dyt = useEval ? derivsEval(x + h, yt, dyt, omega, radius, g, k, equations) : derivs(x + h, yt, dyt, omega, radius, g, k);
+
+  for (index = 0; index <= N; index++) {
+    ynew[index] = y[index] + h6 * (dydx[index] + dyt[index] + 2.0 * dym[index]);
+  }
+  for (index = 0; index <= N; index++) {
+    if (ynew[index] instanceof Number) {
+      ynew[index] = ynew[index].toFixed(4);
+    }
+  }
+
+  return ynew;
+}

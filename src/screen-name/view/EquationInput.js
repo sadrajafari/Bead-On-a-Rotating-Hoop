@@ -50,7 +50,12 @@ export default class EquationInput extends Node {
       handlers: {
         edit: function () {
        
-          options.model[options.equation] = mathField.latex().replaceAll('\\theta', ' t').replaceAll('\\omega', ' o').replaceAll('\\pi', ' p').replaceAll('\\e', ' e')
+          // options.model[options.equation] = mathField.latex().replaceAll('\\theta', ' t').replaceAll('\\omega', ' omega').replaceAll('\\pi', ' p').replaceAll('\\e', ' e')
+          
+          options.model[options.equation] = mathField.latex().replaceAll('\\theta', ' VariableForTheta').replaceAll('\\omega', ' VariableForOmega').replaceAll('\\pi', ' p').replaceAll('\\e', ' e')
+
+          // options.model[options.equation] = mathField.latex().replaceAll("\\pi", " pi");
+          // console.log('Equation:', options.model[options.equation]);
         
           options.model.validEqs = options.verifyEq(options.thetaElement, options.velocityElement, options.model);
           //post here

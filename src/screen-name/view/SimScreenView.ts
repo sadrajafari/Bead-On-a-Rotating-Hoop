@@ -366,8 +366,8 @@ export class SimScreenView extends ScreenView {
         ang,
         new Rectangle(0, 0, 0, simSpeedSlider.height - radius.height + sliderGap.height),
 
-        ang1,
-        new Rectangle(0, 0, 0, simSpeedSlider.height - radius.height + sliderGap.height),
+        // ang1,
+        // new Rectangle(0, 0, 0, simSpeedSlider.height - radius.height + sliderGap.height),
 
       ]
     })
@@ -403,10 +403,11 @@ export class SimScreenView extends ScreenView {
         new Rectangle(0, 0, 0, 10),
         new HSlider(model.omegaRadsProp, new Range(0, Number(20))),
         new Rectangle(0, 0, 0, 10),
-        new HSlider(model.omegaProp, new Range(0, Number(1145.92))),
-        new Rectangle(0, 0, 0, 10),
+        // new HSlider(model.omegaProp, new Range(0, Number(1145.92))),
+        // new Rectangle(0, 0, 0, 10),
       ]
     })
+    
 
     const sliderVboxInitial = new VBox({
       children: [
@@ -442,8 +443,8 @@ export class SimScreenView extends ScreenView {
         new RoundToggleButton(buttonOmegaRads, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
 
         // new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height + sliderGap.height - 3),
-        new Rectangle(0, 0, 0, 22),
-        new RoundToggleButton(buttonOmega, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
+        // new Rectangle(0, 0, 0, 22),
+        // new RoundToggleButton(buttonOmega, false, true, { radius: toggleRadius, content: new Text('✎', { fontSize: 20, maxWidth: 15 }) }),
 
         new Rectangle(0, 0, 0, 20),
         // new Rectangle(0, 0, 0, simSpeedSlider.height - exRichText.height),
@@ -509,16 +510,16 @@ export class SimScreenView extends ScreenView {
             new Text(" rad/s", { fontSize: fontSize })
           ]
         }),
-        new Rectangle(0, 0, 0, simSpeedSlider.height - exText.height + sliderGap.height),
-        new HBox({
-          children: [
-            new Rectangle(0, 0, 10, 0),
-            // new RichText(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) })),
-            new Text(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize }),
-            new Rectangle(0, 0, 10, 0),
-            new Text(" °/s", { fontSize: fontSize })
-          ]
-        }),
+        // new Rectangle(0, 0, 0, simSpeedSlider.height - exText.height + sliderGap.height),
+        // new HBox({
+        //   children: [
+        //     new Rectangle(0, 0, 10, 0),
+        //     // new RichText(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) })),
+        //     new Text(new DerivedProperty([model.omegaProp], (value) => { return String(Number(value).toFixed(2)) }), { fontSize: fontSize }),
+        //     new Rectangle(0, 0, 10, 0),
+        //     new Text(" °/s", { fontSize: fontSize })
+        //   ]
+        // }),
 
       ]
     });
@@ -674,14 +675,14 @@ export class SimScreenView extends ScreenView {
     const buttonAddTheta = new Property<boolean>(false);
     buttonAddTheta.lazyLink(() => {
 
-      this.focusedEq[1].writeToEquation('\\theta'); this.focusedEq[0] = this.focusedEq[1].getElementValue().replaceAll('\\theta', ' t').replaceAll('\\omega', ' o');
+      this.focusedEq[1].writeToEquation('\\theta'); this.focusedEq[0] = this.focusedEq[1].getElementValue().replaceAll('\\theta', ' h').replaceAll('\\omega', ' o');
 
       this.focusedEq[1].mathField.focus()
     })
 
     const buttonAddOmega = new Property<boolean>(false);
     buttonAddOmega.lazyLink(() => {
-      this.focusedEq[1].writeToEquation('\\omega'); this.focusedEq[0] = this.focusedEq[1].getElementValue().replaceAll('\\theta', ' t').replaceAll('\\omega', ' o');
+      this.focusedEq[1].writeToEquation('\\omega'); this.focusedEq[0] = this.focusedEq[1].getElementValue().replaceAll('\\theta', ' h').replaceAll('\\omega', ' o');
 
       this.focusedEq[1].mathField.focus()
     })
