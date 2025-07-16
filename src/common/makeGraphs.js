@@ -58,7 +58,7 @@ export function drawTheta(globalData, testData, graphLen, divID, type, size, sho
     // .attr("stroke", "steelblue")
     .attr("stroke", type === "test" ? "blue" : "red")
     .attr("stroke-width", 1.5)
-    // .attr("stroke-dasharray", type !== "test" ? "4,4" : "0")
+    .attr("stroke-dasharray", type !== "test" ? "4,4" : "0")
     .attr("d", d3.line()
       .x(function (d) { return x(d.time) })
       .y(function (d) { return y(d.theta * 180 / Math.PI) })
