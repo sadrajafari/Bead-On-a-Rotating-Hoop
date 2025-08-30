@@ -59,7 +59,7 @@ const BeadOnHoopConstants = {
       max:"5000"
     },
     {
-      val: "18",
+      val: "1",
       id: "omegaRads",
       name: "(w)",
       type: "range",
@@ -92,7 +92,7 @@ const BeadOnHoopConstants = {
       max:"10"
     },
     {
-     val: "0.1",
+     val: "1",
       id: "simSpeed",
       name: "",
       type: "range",

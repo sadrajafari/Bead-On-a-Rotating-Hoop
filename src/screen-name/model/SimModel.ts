@@ -95,13 +95,13 @@ export class SimModel {
 
     // this.graphLen = new Property(Number(this.paramList["graphlen"].val))
 
-    this.omegaProp.link(((val) => {
-      if (!this.updateOmega) {
-        this.updateOmega = true;
-        this.omegaRadsProp.value = val * Math.PI / 180
-        this.updateOmega = false;
-      }
-    }))
+    // this.omegaProp.link(((val) => {
+    //   if (!this.updateOmega) {
+    //     this.updateOmega = true;
+    //     this.omegaRadsProp.value = val * Math.PI / 180
+    //     this.updateOmega = false;
+    //   }
+    // }))
     this.omegaRadsProp.link(((val) => {
       if (!this.updateOmega) {
         this.updateOmega = true;
@@ -231,7 +231,7 @@ export class SimModel {
   public step(dt: number): void {
     if (!this.paused) {
 
-      this.timer += dt * this.simSpeedProp.value;
+      this.timer += 0.01 * this.simSpeedProp.value;
 
       this.angle = this.graphData.getTheta(this.timer);
       if (this.project) {
