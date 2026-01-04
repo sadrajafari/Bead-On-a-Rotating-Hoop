@@ -195,12 +195,7 @@ export class SimModel {
       this.ballsCords.push(0)
       this.prevCords.push([0])
     }
-    // this.thetaEQ = '\\frac{v}{r}'
-    // this.velocityEQ = 'r\\sin\\left(\\theta\\right)\\left(\\omega^2\\cos\\left(\\theta\\right)-\\frac{g}{r}\\right)-k\\cdot v'
     
-    // this.thetaFunc = globalThis.window.evaluatex(this.thetaEQ, {k:this.friction,r:this.radius,g:this.gravity,o:this.omega*Math.PI/180}, {latex:true});
-    // this.velocityFunc = globalThis.window.evaluatex(this.velocityEQ, {k:this.friction,r:this.radius,g:this.gravity,o:this.omega*Math.PI/180}, {latex:true});
-    // this.graphData = getGraphData(this.graphUpdateInterval, this.velocity, this.angle*Math.PI/180, this.omega, this.radius, this.gravity, this.friction, {}, false, this.graphLen, this.graphData, this.timer, this.project);
     this.graphData = getGraphData(this.graphUpdateInterval, this.velocity, this.angle * Math.PI / 180, this.omega, this.radius, this.gravity, this.friction, {}, false, this.graphLen, this.graphData, this.timer, this.project);
     this.rotation = 0;
     this.originalLen = this.graphLen;

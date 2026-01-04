@@ -23,8 +23,9 @@ import {
   Display,
   DOM,
   CarouselComboBox,
+  RectangularPushButton,
 } from "scenerystack";
-import ThreeIsometricNode from "../../../../mobius/js/ThreeIsometricNode.ts";
+// import ThreeIsometricNode from "../../../../mobius/js/ThreeIsometricNode.ts";
 import { drawTheta, drawVelocity } from "../../common/makeGraphs.js";
 import { verifyEq } from "../../common/verifyEq.js";
 import EquationInput from "./EquationInput.js";
@@ -33,8 +34,8 @@ import * as THREE from "three";
 
 export class SimScreenView extends ScreenView {
   // public readonly sceneNoder!: Thre;
-  public readonly sceneNode!: any | ThreeIsometricNode;
-  public readonly sceneNodeTest!: any | ThreeIsometricNode;
+  public readonly sceneNode!: any
+  public readonly sceneNodeTest!: any;
   private readonly cubeMesh!: THREE.Mesh;
   private readonly cubeMeshTest!: THREE.Mesh;
   private readonly hoop!: THREE.Mesh;
@@ -124,9 +125,10 @@ export class SimScreenView extends ScreenView {
     let spacePressed = false;
     // const pauseButton = new RectangularToggleButton(pause, false, true, { minWidth: 140, maxHeight: 20, content: new RichText('▐▐'), baseColor: "#f44949" })
     const pauseSign = new Text("⏸︎", { fontSize: 25, maxWidth: 40 });
-    const pauseButton = new RoundToggleButton(pause, false, true, {
+    const pauseButton = new RectangularToggleButton(pause, false, true, {
       maxHeight: 100,
-      scale: 1.1,
+      minWidth: 35,
+      scale: 1,
       xAlign: "center",
       yAlign: "center",
       content: pauseSign,
@@ -135,9 +137,10 @@ export class SimScreenView extends ScreenView {
     // const ResumeButton = new RectangularToggleButton(resume, false, true, { minWidth: 140, maxHeight: 20, content: new RichText('▶'), baseColor: "#41b3d5" })
     const resumeSign = new Text("⏵︎", { fontSize: 25, maxWidth: 40 });
     // const ResumeButton = new RectangularToggleButton(resume, false, true, { minWidth: 140, maxHeight: 20, content: resumeSign, baseColor: "#41b3d5" })
-    const ResumeButton = new RoundToggleButton(resume, false, true, {
-      maxHeight: 120,
-      scale: 1.1,
+    const ResumeButton = new RectangularToggleButton(resume, false, true, {
+      maxHeight: 35,
+      minWidth: 35,
+      scale: 1,
       xAlign: "center",
       yAlign: "center",
       content: resumeSign,
@@ -177,7 +180,56 @@ export class SimScreenView extends ScreenView {
       model.id,
     );
 
-    const resetAllButton = new ResetAllButton({
+    // const resetAllButton = new ResetAllButton({
+    //   listener: () => {
+    //     this.interruptSubtreeInput(); // cancel interactions that may be in progress
+
+    //     post(
+    //       this.model.name,
+    //       "reset",
+    //       this.model.radius,
+    //       this.model.gravity,
+    //       this.model.friction,
+    //       this.model.omega,
+    //       this.model.thetaProp.value,
+    //       this.model.velocityProp.value,
+    //       this.model.velocityEQ,
+    //       this.model.thetaEQ,
+    //       this.model.id,
+    //     );
+
+    //     model.reset();
+    //     this.reset();
+    //     this.model.paused = false;
+    //     pauseButton.visible = true;
+    //     ResumeButton.visible = false;
+    //     update = true;
+    //     if (
+    //       model.thetaEQ != "" &&
+    //       model.velocityEQ != "" &&
+    //       (thetaPrevious != model.thetaEQ ||
+    //         velocityPrevious != model.velocityEQ)
+    //     ) {
+    //       this.showBead = true;
+    //       this.beadOnCharts = model.velocityEQ && model.thetaEQ ? true : false;
+
+    //       thetaPrevious = model.thetaEQ;
+    //       velocityPrevious = model.velocityEQ;
+    //     }
+    //     if (
+    //       model.thetaEQ.length == 0 ||
+    //       model.velocityEQ.length === 0 ||
+    //       model.velocityEQ === "" ||
+    //       model.thetaEQ === ""
+    //     ) {
+    //       this.showBead = false;
+    //       this.beadOnCharts = false;
+    //     }
+    //   },
+    // });
+
+    const resetAllButton = new RectangularPushButton({
+      content: new Text("⏮", { fontSize: 20, fill: "black" }),
       listener: () => {
         this.interruptSubtreeInput(); // cancel interactions that may be in progress
 
@@ -223,7 +275,14 @@ export class SimScreenView extends ScreenView {
           this.beadOnCharts = false;
         }
       },
+      minWidth: 35,
+      minHeight: 35,
+      right: this.layoutBounds.maxX - 10,
+      bottom: this.layoutBounds.maxY - 10,
     });
+
+
+
     let update = true;
     const reset = (value_changed = "") => {
       model.reset(value_changed !== "" ? value_changed : "");
@@ -1360,8 +1419,8 @@ export class SimScreenView extends ScreenView {
         if (
           changingWithId[1] === 145 ||
           changingWithId[1] === 153 ||
-          changingWithId[1] === 451 ||
-          changingWithId[1] === 459
+          changingWithId[1] === 449 ||
+          changingWithId[1] === 457
         ) {
           reset("radius changed");
           changingWithId[0] = false;
@@ -1369,8 +1428,8 @@ export class SimScreenView extends ScreenView {
         } else if (
           changingWithId[1] === 161 ||
           changingWithId[1] === 169 ||
-          changingWithId[1] === 467 ||
-          changingWithId[1] === 475
+          changingWithId[1] === 465 ||
+          changingWithId[1] === 473
         ) {
           reset("gravity changed");
           changingWithId[0] = false;
@@ -1378,8 +1437,8 @@ export class SimScreenView extends ScreenView {
         } else if (
           changingWithId[1] === 176 ||
           changingWithId[1] === 184 ||
-          changingWithId[1] === 482 ||
-          changingWithId[1] === 490
+          changingWithId[1] === 480 ||
+          changingWithId[1] === 488
         ) {
           reset("friction changed");
           changingWithId[0] = false;
@@ -1389,8 +1448,8 @@ export class SimScreenView extends ScreenView {
           changingWithId[1] === 206 ||
           changingWithId[1] === 199 ||
           changingWithId[1] === 214 ||
-          changingWithId[1] === 497 ||
-          changingWithId[1] === 505
+          changingWithId[1] === 495 ||
+          changingWithId[1] === 503
         ) {
           reset("ang. vel. changed");
           changingWithId[0] = false;
@@ -1398,8 +1457,8 @@ export class SimScreenView extends ScreenView {
         } else if (
           changingWithId[1] === 223 ||
           changingWithId[1] === 231 ||
-          changingWithId[1] === 514 ||
-          changingWithId[1] === 522
+          changingWithId[1] === 512 ||
+          changingWithId[1] === 520
         ) {
           reset("ang. pos. changed");
           changingWithId[0] = false;
@@ -1407,13 +1466,14 @@ export class SimScreenView extends ScreenView {
         } else if (
           changingWithId[1] === 238 ||
           changingWithId[1] === 246 ||
-          changingWithId[1] === 529 ||
-          changingWithId[1] === 537
+          changingWithId[1] === 527 ||
+          changingWithId[1] === 535
         ) {
           reset("velocity changed");
           changingWithId[0] = false;
           changingWithId[1] = -1;
         }
+        
       }
     });
 
@@ -1572,10 +1632,10 @@ export class SimScreenView extends ScreenView {
                 children: [
                   new HBox({
                     children: [
+                      resetAllButton,
+                      new Rectangle(0, 0, 10, 0),
                       pauseButton,
                       ResumeButton,
-                      new Rectangle(0, 0, 10, 0),
-                      resetAllButton,
                     ],
                   }),
                 ],
