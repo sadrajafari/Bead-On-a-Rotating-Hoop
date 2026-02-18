@@ -1,6 +1,10 @@
 import { ScreenView, ScreenViewOptions } from "scenerystack/sim";
 import { SimModel } from "../model/SimModel.js";
-import { ResetAllButton } from "scenerystack/scenery-phet";
+import {
+  InfoButton,
+  QuestionBar,
+  ResetAllButton,
+} from "scenerystack/scenery-phet";
 import {
   Rectangle,
   Color,
@@ -31,10 +35,12 @@ import { verifyEq } from "../../common/verifyEq.js";
 import EquationInput from "./EquationInput.js";
 import post from "../../common/postData.js";
 import * as THREE from "three";
+import { questionButton } from "./questionSign.js";
+import HelpDialog from "./HelpDialog.ts";
 
 export class SimScreenView extends ScreenView {
   // public readonly sceneNoder!: Thre;
-  public readonly sceneNode!: any
+  public readonly sceneNode!: any;
   public readonly sceneNodeTest!: any;
   private readonly cubeMesh!: THREE.Mesh;
   private readonly cubeMeshTest!: THREE.Mesh;
@@ -280,8 +286,6 @@ export class SimScreenView extends ScreenView {
       right: this.layoutBounds.maxX - 10,
       bottom: this.layoutBounds.maxY - 10,
     });
-
-
 
     let update = true;
     const reset = (value_changed = "") => {
@@ -993,13 +997,46 @@ export class SimScreenView extends ScreenView {
         content: new RichText("insert (ω) into equation"),
       },
     );
+    // Info button for equation help
+    const fillEquationsCallback = (equations: { v: string; theta: string }) => {
+      // Update the velocity equation field
+      this.velocityField.mathField.latex(equations.v);
+
+      // Update the theta equation field
+      this.thetaField.mathField.latex(equations.theta);
+
+      // Update the model with the new equations
+      this.model.velocityEQ = equations.v;
+      this.model.thetaEQ = equations.theta;
+
+    };
+
+    const helpDialog = new HelpDialog(this.tandem, fillEquationsCallback);
+
+    const questionNode = questionButton();
+
+    // const helpDialog = new HelpDialog(undefined as any);
+
+    questionNode.addInputListener({
+      down: () => {
+        helpDialog.show();
+      },
+    });
+
+    // questionNode.rightTop = new Vector2(this.layoutBounds.maxX - 20, 20);
+
+    // this.addChild(questionNode);
+    // --------------------------------------------
     const testEquation = new Text("Test Equations", { fontSize: fontSize + 5 });
     const equationPanel = new Panel(
       new VBox({
         minimumWidth: 400,
         align: "center",
         children: [
-          new HBox({ align: "center", children: [testEquation] }),
+          new HBox({
+            align: "center",
+            children: [testEquation, new Rectangle(0, 0, 10, 10), questionNode],
+          }),
           new Rectangle(0, 0, 10, 10),
           new VBox({
             align: "right",
@@ -1082,7 +1119,7 @@ export class SimScreenView extends ScreenView {
             ),
             new HBox({
               children: [new Rectangle(0, 0, 10, 0), speedRate, measuresign],
-            })
+            }),
           ],
         }),
       ],
@@ -1473,7 +1510,6 @@ export class SimScreenView extends ScreenView {
           changingWithId[0] = false;
           changingWithId[1] = -1;
         }
-        
       }
     });
 
@@ -2042,7 +2078,7 @@ export class SimScreenView extends ScreenView {
         this.model.graphData.data,
         (d: { theta: any }) => d.theta,
       );
-      
+
       // @ts-ignore
       const minYTtest = d3.min(
         this.model.graphDataTest.data,
