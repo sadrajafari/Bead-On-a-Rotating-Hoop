@@ -5,8 +5,6 @@ Bead On Hoop
 Interactive Simulations</a>
 at the University of Colorado Boulder.
 
-*This simulation is under development and has not been published.*
-
 ### Documentation
 
 The <a href="https://github.com/phetsims/phet-info/blob/main/doc/phet-development-overview.md" target="_blank">PhET
